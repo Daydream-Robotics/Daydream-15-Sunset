@@ -74,33 +74,33 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-// Instantiate Motor Groups and Controller
-pros::MotorGroup leftMotors({1, 2, 3});
+// Instantiate motor groups and controller
+pros::MotorGroup leftMotors({1, 2, 3}); // TODO: Input correct ports
 pros::MotorGroup rightMotors({4, 5, 6});
 pros::Controller controller;
-//Set Motor Brakes to Coast
 
 void opcontrol() {
+	// Set brake mode
 	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-	while (true){
+	
+	while (true) {
 		int leftY = controller.get_analog(ANALOG_LEFT_Y);
 		int rightY = controller.get_analog(ANALOG_RIGHT_Y);
-		//Added Dead Zone for both motors
-		if(abs(leftY)>3){
-           leftMotors.move(leftY);
-		   
-		}else{
-          leftMotors.move(0);
+		
+		// Added dead zone for both motors
+		if(abs(leftY) > 3) {
+        	leftMotors.move(leftY);
+		} else {
+        	leftMotors.move(0);
 		}
-		if(abs(rightY)>3){
-        rightMotors.move(rightY);
-		}else{
-        rightMotors.move(0);
+		if(abs(rightY) > 3) {
+        	rightMotors.move(rightY);
+		} else {
+        	rightMotors.move(0);
 		}
 		
-		
-// Delay added to Prevent crashing
+		// Delay added to prevent data overload
 		pros::delay(20);
 	}
 }
