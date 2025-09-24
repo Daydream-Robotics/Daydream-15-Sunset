@@ -1,5 +1,8 @@
 #include "main.h"
 
+#define OPTICAL_PORT 19
+#define MOTOR_PORT 9
+
 /**
  * A callback function for LLEMU's center button.
  *
@@ -75,20 +78,62 @@ void autonomous() {}
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1, -2, 3});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-4, 5, -6});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
+	// Initialize ports for optical sensor and motor
+	pros::Optical optical_sensor(OPTICAL_PORT);
+	pros::Motor motor_1(MOTOR_PORT);
+	// Vars for holding color parameters
+	double team_high, team_low, opp_high, opp_low;
 
+	// Optical Sensor Vars
+	double hue;
+	int prox;
+
+	bool seenColor = false;
+
+	// Continually check for color until team assignment
+	// Should probably be moved to intialize
+	while (!seenColor) {
+		// Capture Color and Distance
+		hue = optical_sensor.get_hue();
+		prox = optical_sensor.get_proximity();
+
+		// Look for a close proximity color to identify team
+		if (prox > 200) {
+			if (hue > 160 && hue < 200) { // Found Blue
+				team_high = 200; team_low = 160; opp_high = 30; opp_low = 0;
+				// Break Loop
+				seenColor = true;
+				pros::lcd::print(2, "Team has been assigned to Blue!");
+			} else if (hue > 0 && hue < 30) { // Found Red
+				team_high = 30; team_low = 0; opp_high = 200; opp_low = 160;
+				// Break Loop
+				seenColor = true;
+				pros::lcd::print(2, "Team has been assigned to Red!");
+			}
+		}
+
+		
+	}
+	
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
+		
+		// Gather color and distance from optical sensor
+		hue = optical_sensor.get_hue();
+		prox = optical_sensor.get_proximity();
 
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
+		// Screen logging
+		pros::lcd::print(0, "Hue: %lf", hue);
+		pros::lcd::print(1, "Proximity: %d", prox);
+
+		// If we spot team color within close proximity run motors
+		if (hue > team_low && team_high > hue && prox > 200) {
+			motor_1.move_voltage(6000);
+		} else if (hue > opp_low && hue < opp_high) {
+			// If we spot opponent color then stop
+			motor_1.move_voltage(0);
+		}
+
+    	pros::delay(20);
 	}
 }
