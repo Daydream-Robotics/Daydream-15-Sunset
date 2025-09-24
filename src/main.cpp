@@ -1,5 +1,6 @@
 #include "main.h"
 
+// Port values
 #define OPTICAL_PORT 19
 #define MOTOR_PORT 9
 
@@ -79,10 +80,10 @@ void autonomous() {}
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	// Initialize ports for optical sensor and motor
-	pros::Optical optical_sensor(OPTICAL_PORT);
-	pros::Motor motor_1(MOTOR_PORT);
+	pros::Optical colorSensor(OPTICAL_PORT);
+	pros::Motor motor1(MOTOR_PORT);
 	// Vars for holding color parameters
-	double team_high, team_low, opp_high, opp_low;
+	double teamHigh, teamLow, oppHigh, oppLow;
 
 	// Optical Sensor Vars
 	double hue;
@@ -91,47 +92,42 @@ void opcontrol() {
 	bool seenColor = false;
 
 	// Continually check for color until team assignment
-	// Should probably be moved to intialize
-	while (!seenColor) {
+	while (!seenColor) { // TODO: Move to initialize
 		// Capture Color and Distance
-		hue = optical_sensor.get_hue();
-		prox = optical_sensor.get_proximity();
+		hue = colorSensor.get_hue();
+		prox = colorSensor.get_proximity();
 
 		// Look for a close proximity color to identify team
 		if (prox > 200) {
 			if (hue > 160 && hue < 200) { // Found Blue
-				team_high = 200; team_low = 160; opp_high = 30; opp_low = 0;
+				teamHigh = 200; teamLow = 160; oppHigh = 30; oppLow = 0;
 				// Break Loop
 				seenColor = true;
 				pros::lcd::print(2, "Team has been assigned to Blue!");
 			} else if (hue > 0 && hue < 30) { // Found Red
-				team_high = 30; team_low = 0; opp_high = 200; opp_low = 160;
+				teamHigh = 30; teamLow = 0; oppHigh = 200; oppLow = 160;
 				// Break Loop
 				seenColor = true;
 				pros::lcd::print(2, "Team has been assigned to Red!");
 			}
-		}
-
-		
+		}		
 	}
 	
-
 	while (true) {
-		
 		// Gather color and distance from optical sensor
-		hue = optical_sensor.get_hue();
-		prox = optical_sensor.get_proximity();
+		hue = colorSensor.get_hue();
+		prox = colorSensor.get_proximity();
 
 		// Screen logging
 		pros::lcd::print(0, "Hue: %lf", hue);
 		pros::lcd::print(1, "Proximity: %d", prox);
 
 		// If we spot team color within close proximity run motors
-		if (hue > team_low && team_high > hue && prox > 200) {
-			motor_1.move_voltage(6000);
-		} else if (hue > opp_low && hue < opp_high) {
+		if (hue > teamLow && teamHigh > hue && prox > 200) {
+			motor1.move_voltage(6000);
+		} else if (hue > oppLow && hue < oppHigh) {
 			// If we spot opponent color then stop
-			motor_1.move_voltage(0);
+			motor1.move_voltage(0);
 		}
 
     	pros::delay(20);
