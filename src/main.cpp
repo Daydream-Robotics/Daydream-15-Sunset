@@ -38,4 +38,4 @@ void opcontrol() {
 		// Delay added to prevent crashing
 		pros::delay(20);
 	}
-}
+} 

@@ -9,12 +9,12 @@
 
 /* - - - - - - - - - - - - - - [PORTS] - - - - - - - - - - - - - - */
 
-constexpr int LEFT_TRACKING_WHEEL_PORT = 1;
-constexpr int RIGHT_TRACKING_WHEEL_PORT =4;
-constexpr int BACK_TRACKING_WHEEL_PORT = 13;
+constexpr int LEFT_TRACKING_WHEEL_PORT = -11;
+constexpr int RIGHT_TRACKING_WHEEL_PORT =19;
+constexpr int BACK_TRACKING_WHEEL_PORT = 1;//no back tracking port change later
 
-#define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, 2, 3}
-#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 5, 6}
+#define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -12, -13}
+#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 20, 18}
 
 /* - - - - - - - - - - - - - - [DRIVE] - - - - - - - - - - - - - - */
 
