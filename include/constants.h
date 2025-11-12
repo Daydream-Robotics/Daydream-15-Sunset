@@ -14,7 +14,10 @@ constexpr int RIGHT_TRACKING_WHEEL_PORT =19;
 constexpr int BACK_TRACKING_WHEEL_PORT = 1;//no back tracking port change later
 
 #define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -12, -13}
-#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 20, 18}
+#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 20, 17}
+
+constexpr int FRONT_INTAKE_PORT = 21;
+constexpr int MAIN_INTAKE_PORT = 3;
 
 /* - - - - - - - - - - - - - - [DRIVE] - - - - - - - - - - - - - - */
 

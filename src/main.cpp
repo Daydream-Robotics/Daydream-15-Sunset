@@ -17,6 +17,10 @@ void opcontrol() {
 	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 
+
+	frontIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	mainIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
 	while(true){
 		// Get joystick values
 		int leftY = controller.get_analog(ANALOG_LEFT_Y);
@@ -34,6 +38,25 @@ void opcontrol() {
 		} else { 
 			rightMotors.move(0);
 		}
+
+		// Main intake
+		if (controller.get_digital(DIGITAL_R1)){
+			mainIntake.move(-127);
+		} else if (controller.get_digital(DIGITAL_R2)){
+			mainIntake.move(127);
+		} else {
+			mainIntake.move(0);
+		}
+
+		// Front intake 
+		if (controller.get_digital(DIGITAL_L1)){
+			frontIntake.move(127);
+		} else if (controller.get_digital(DIGITAL_L2)){
+			frontIntake.move(-127);
+	    } else {
+			frontIntake.move(0);
+		}
+
 
 		// Delay added to prevent crashing
 		pros::delay(20);
