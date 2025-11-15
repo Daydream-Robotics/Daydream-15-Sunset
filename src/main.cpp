@@ -40,18 +40,18 @@ void opcontrol() {
 		}
 
 		// Main intake
-		if (controller.get_digital(DIGITAL_R1)){
+		if (controller.get_digital(DIGITAL_L1)){
 			mainIntake.move(-127);
-		} else if (controller.get_digital(DIGITAL_R2)){
+		} else if (controller.get_digital(DIGITAL_L2)){
 			mainIntake.move(127);
 		} else {
 			mainIntake.move(0);
 		}
 
 		// Front intake 
-		if (controller.get_digital(DIGITAL_L1)){
+		if (controller.get_digital(DIGITAL_R1)){
 			frontIntake.move(127);
-		} else if (controller.get_digital(DIGITAL_L2)){
+		} else if (controller.get_digital(DIGITAL_R2)){
 			frontIntake.move(-127);
 	    } else {
 			frontIntake.move(0);
