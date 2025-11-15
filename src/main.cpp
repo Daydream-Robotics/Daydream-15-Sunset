@@ -1,6 +1,7 @@
 #include "main.h"
 #include "subsystems.h"
 #include "constants.h"
+#include "odometry.h"
 
 void initialize() {
 	pros::lcd::initialize();
@@ -10,7 +11,25 @@ void disabled() {}
 
 void competition_initialize() {}
 
-void autonomous() {}
+void autonomous() {
+	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+
+	while (imu.is_calibrating()) {
+		pros::delay(20);
+	}
+
+	move(1);
+	move_pid(15);
+	// turn(1);
+	// mainIntake.move(-127);
+	// move_pid(13);
+	// mainIntake.move(0);
+	// turn(1);
+	// move_pid(53);
+	// turn(1);
+	// move_pid(13);
+}
 
 void opcontrol() {
 	// Set chassis brake mode to coast

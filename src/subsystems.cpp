@@ -8,3 +8,5 @@ pros::MotorGroup rightMotors(RIGHT_DRIVE_WHEEL_PORTS);
 
 pros::Motor frontIntake(FRONT_INTAKE_PORT);
 pros::Motor mainIntake(MAIN_INTAKE_PORT);
+
+pros::IMU imu(IMU_PORT);
