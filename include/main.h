@@ -35,6 +35,7 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
+#include "constants.h"
 
 /**
  * You should add more #includes here
@@ -115,6 +116,10 @@ void competition_initialize(void);
  * task, not resume it from where it left off.
  */
 void opcontrol(void);
+
+// move all intake motors with set values.
+void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP);
+
 #ifdef __cplusplus
 }
 #endif
