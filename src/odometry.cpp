@@ -5,40 +5,35 @@
 
 #include "stdlib.h"
 
-//#include <algorithm>
 #include <cmath>
 
-double heading;
-double optimized_angle;
-double temp_angle;
-
+double heading, optimized_angle, temp_angle, start_angle, mid_angle;
 
 void turn_pid(double target) {
 	int correctCount = 0;
 	heading = get_yaw_quaternion();
+	//pros::lcd::print(1, "Heading = %lf, Target = %lf", heading, target);
 	double turn_error = 0, turn_total_error = 0, turn_derivative = 0, turn_prev_error = 0, turn_PID = 0;
+
+	// sets derivative to 0 on initial iteration
+	turn_prev_error = optimized_angle;
 	
-	while (correctCount <= 10) {
+	while (correctCount <= 5) {
 		
 		heading = get_yaw_quaternion() - 180;
 		optimized_angle = target - heading;
 			
-		if(target > heading){
-			temp_angle = ((360 - target) + heading) * -1;
-			if(abs(optimized_angle) > abs(temp_angle))
-				optimized_angle = temp_angle;
-		} else {
-			temp_angle = (360 - heading) + target;
-			if(abs(optimized_angle) > abs(temp_angle))
-				optimized_angle = temp_angle;
-		}
+		pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
 
-		pros::lcd::print(1, "Optimized Angle: %lf", optimized_angle);
-		pros::lcd::print(2, "Heading Angle: %lf", heading);
-		pros::lcd::print(3, "Correct Count: %d", correctCount);
+		if (optimized_angle > 180) optimized_angle -= 360;
+		else if (optimized_angle < -180) optimized_angle += 360;
+		if (optimized_angle == 180) optimized_angle = 179.99;
+
 
 		// proportion
 		turn_error = optimized_angle;
+
+		//pros::lcd::print(3, "Optimized = %lf", optimized_angle);
 
 		// integral
 		turn_total_error += turn_error;
@@ -51,184 +46,443 @@ void turn_pid(double target) {
 
 		turn_PID = ((TURN_KP * turn_error) / 360);
 		turn_PID += (TURN_KD * turn_derivative);
-		turn_PID += (TURN_KI * turn_total_error);
-
-		int turnSpeed = turn_PID * 127;
-	
-		if(abs(optimized_angle) > 0.15) {
-			int lowerBound = std::max(abs(turnSpeed), 10);
-			turnSpeed = std::min(lowerBound, 64);
-			leftMotors.move((int)copysign(turnSpeed, turn_PID));
-			rightMotors.move(-(int)copysign(turnSpeed, turn_PID));
-		} else {
-			leftMotors.move(0);
-			rightMotors.move(0);
+		if (abs(turn_total_error) < 2000) {
+			turn_PID += (TURN_KI * turn_total_error);
 		}
+
+		//pros::lcd::print(2, "PID = %lf", turn_PID);
+
+		int turnSpeed = turn_PID * 50;
+	
+		if(abs(optimized_angle) > 0.2) {
+			turnSpeed = std::clamp(std::abs(turnSpeed), 1, 55);
+
+			leftMotors.move_velocity((int)copysign(turnSpeed, turn_PID));
+			rightMotors.move_velocity(-(int)copysign(turnSpeed, turn_PID));
+
+		}
+		// pros::lcd::print(4, "Statement: %d", abs(optimized_angle) > 0.2);
 		
 		if(abs(optimized_angle) <= 0.2) {
 			correctCount++;
 		}
 
+		// pros::lcd::print(4, "Correct Count: %d", correctCount);
+		// pros::lcd::print(5, "Cur angle: %lf", heading);
+		// pros::lcd::print(6, "Turnspeed: %d", turnSpeed);
+		// pros::lcd::print(7, "Optimized angle: %lf", optimized_angle);
+		// pros::lcd::print(7, "Move value: %d", (int)copysign(turnSpeed, turn_PID));
 		pros::delay(10);
 	}
 
-	leftMotors.move(0);
-	rightMotors.move(0);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
 
 	pros::delay(250);
 	
 }
 
-void move(int seconds) {
-	const auto start_time = std::chrono::steady_clock::now();
-	const auto timer_duration = std::chrono::seconds(seconds);
+void slew_turn_pid(double target) {
+    int correctCount = 0;
+        
+    // Calculate and normalize the heading/error BEFORE the loop starts
+    heading = get_yaw_quaternion(); 
+    
+    // Your original heading adjustment logic: [0, 360] -> [-180, 180]
+    heading = heading - 180; 
+    double optimizedAngleInitial = target - heading;
+    
+    if (optimizedAngleInitial > 180) optimizedAngleInitial -= 360;
+    else if (optimizedAngleInitial < -180) optimizedAngleInitial += 360;
+    if (optimizedAngleInitial == 180) optimizedAngleInitial = 179.99;
+    
+    // Initialize turn_prev_error with the first calculated error
+    double turn_prev_error = optimizedAngleInitial; 
+    
+    // --- SLEW RATE VARIABLES (camelCase) ---
+    // This holds the motor power that was sent in the PREVIOUS loop iteration
+    double currentSlewPower = 0.0; 
+    // This defines the MAX change allowed per loop (e.g., max change of 5 power units every 10ms)
+    const double SLEW_STEP = 1.0; 
+    // --- END SLEW VARIABLES ---
+    
+    // The rest of the PID variables
+    double turn_error = 0, turn_total_error = 0, turn_derivative = 0, turn_PID = 0;
+    
+    while (correctCount <= 5) {
+        
+        // --- ANGLE CALCULATION ---
+        heading = get_yaw_quaternion() - 180;
+        optimized_angle = target - heading; // optimized_angle is a global variable
+            
+        pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
 
-	while ((std::chrono::steady_clock::now() - start_time) < timer_duration)
-	{
-		leftMotors.move(-20);
-		rightMotors.move(-25);
-	}
-}
+        if (optimized_angle > 180) optimized_angle -= 360;
+        else if (optimized_angle < -180) optimized_angle += 360;
+        if (optimized_angle == 180) optimized_angle = 179.99;
 
-void move_pid(double target) {
-	int correctCount = 0;
-	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
-	rightMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
+        // --- PID CALCULATION ---
+        turn_error = optimized_angle; // proportion
+        
+        // integral (with windup guard)
+        turn_total_error += turn_error;
 
-	// Convert inches to degrees
-	target = inchesToDegrees(target);
+        // derivative
+        turn_derivative = turn_error - turn_prev_error;
+        turn_prev_error = turn_error; // get prev error for next instance
 
-	// Make movement relative
-	target -= ((leftMotors.get_position() + rightMotors.get_position()) / 2);
-	
-	double move_error = 0, move_total_error = 0, move_derivative = 0, move_prev_error = 0, effort = 0;
-	
-	while (correctCount <= 10) {
-		
-		double position = (leftMotors.get_position() + rightMotors.get_position()) / 2;
-		double dist = target - position;
+        // PID output calculation
+        turn_PID = ((TURN_KP * turn_error) / 360);
+        turn_PID += (TURN_KD * turn_derivative);
+        if (abs(turn_total_error) < 2000) {
+            turn_PID += (TURN_KI * turn_total_error);
+        }
 
-		// proportion
-		move_error = dist;
+        // --- MOTOR POWER CALCULATION & SLEW RATE APPLICATION ---
+        
+        // This is the raw motor speed requested by the PID loop (Target Speed)
+        double requestedPower = turn_PID * 50.0;
+        
+        // Calculate the difference between requested speed and current limited speed
+        double powerDifference = requestedPower - currentSlewPower;
 
-		// integral
-		move_total_error += move_error;
+        // Limit the acceleration (positive slew)
+        if (powerDifference > SLEW_STEP) {
+            currentSlewPower += SLEW_STEP;
+        } 
+        // Limit the deceleration (negative slew)
+        else if (powerDifference < -SLEW_STEP) {
+            currentSlewPower -= SLEW_STEP;
+        } 
+        // If difference is within the step size, update to target power
+        else {
+            currentSlewPower = requestedPower;
+        }
 
-		// derivative
-		move_derivative = move_error - move_prev_error;
-		
-		// get prev error for next instance
-		move_prev_error = move_error;
+        // Final speed to send to motors after slewing
+        int finalSpeed = (int)currentSlewPower;
+    
+        // --- MOTOR COMMANDS ---
 
-		effort = ((MOVE_KP * move_error) / 360);
-		effort += (MOVE_KD * move_derivative);
-		effort += (MOVE_KI * move_total_error);
+        if(abs(optimized_angle) > 0.2) {
+			finalSpeed = std::clamp(std::abs(finalSpeed), 1, 55);
 
-		int moveSpeed = effort * 127;
-	
-		if(abs(dist) > 0.45) {
-			int lowerBound = std::max(abs(moveSpeed), 20);
-			moveSpeed = std::min(lowerBound, 127);
-			leftMotors.move((int)copysign(moveSpeed, effort));
-			rightMotors.move((int)copysign(moveSpeed + 5, effort));
+			leftMotors.move_velocity((int)copysign(finalSpeed, turn_PID));
+			rightMotors.move_velocity(-(int)copysign(finalSpeed, turn_PID));
+
 		} else {
-			leftMotors.move(0);
-			rightMotors.move(0);
-		}
-		
-		if(abs(dist) <= 0.5) {
-			correctCount++;
-		}
+            // Stop and count if within the target tolerance
+            leftMotors.move_velocity(0);
+            rightMotors.move_velocity(0);
+            correctCount++;
+        }
 
-		pros::delay(10);
-	}
+        pros::delay(10);
+    }
 
-	leftMotors.move(0);
-	rightMotors.move(0);
-
-	pros::delay(250);
-	
+    leftMotors.move_velocity(0);
+    rightMotors.move_velocity(0);
+    pros::delay(250);
 }
 
-void move_pid_back(double target) {
-	int correctCount = 0;
-	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
-	rightMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
+void slew_move_pid(double targetDistance) {
+    int correctCount = 0;
+        
+    // --- DISTANCE CALCULATION VARIABLES ---
+    // Will hold the average of the left/right encoder readings.
+    double initialDistance = 0.0; 
+    double currentDistance = 0.0;
+    
+    // You'll need functions to get the encoder values (e.g., from your motors/sensors)
+    // Placeholder function for getting the current average distance (e.g., in inches)
+    // You would define this function to read your wheel encoders and convert the ticks/rotations to a real-world unit.
+    // Example: (get_left_encoder() + get_right_encoder()) / 2 * CONVERSION_FACTOR
+    
+    // Get the starting distance
+    initialDistance = get_average_encoder_distance(initialDistance); 
+    
+    // Calculate and initialize the initial error
+    double move_initial_error = targetDistance - 0.0; // The error is the target minus the starting distance (which we treat as 0 by subtracting initialDistance inside the loop)
+    
+    // Initialize move_prev_error with the first calculated error
+    double move_prev_error = move_initial_error; 
+    
+    // --- SLEW RATE VARIABLES (camelCase) ---
+    // This holds the motor power that was sent in the PREVIOUS loop iteration
+    double currentSlewPower = 0.0; 
+    // This defines the MAX change allowed per loop (adjust this for linear movement)
+    const double SLEW_STEP = 1.0; 
+    // --- END SLEW VARIABLES ---
+    
+    // The rest of the PID variables
+    double move_error = 0, move_total_error = 0, move_derivative = 0, move_PID = 0;
+    
+    while (correctCount <= 10) {
 
-	// Convert inches to degrees
-	target = inchesToDegrees(target);
+		// --- DISTANCE CALCULATION ---
+        // Get the current average distance and calculate the distance traveled from the start
+        currentDistance = get_average_encoder_distance(initialDistance);
+        // double distance_traveled = currentDistance - initialDistance;
+		double distance_traveled = get_average_encoder_distance(initialDistance);
+        
+        // Calculate the remaining error
+        move_error = targetDistance - distance_traveled; 
 
-	// Make movement relative
-	target -= ((leftMotors.get_position() + rightMotors.get_position()) / 2);
-	
-	double move_error = 0, move_total_error = 0, move_derivative = 0, move_prev_error = 0, effort = 0;
-	
-	while (correctCount <= 10) {
-		
-		double position = (leftMotors.get_position() + rightMotors.get_position()) / 2;
-		double dist = target - position;
+        // pros::lcd::print(2, "Distance = %lf, Target = %lf", distance_traveled, targetDistance);
+        
+        // --- PID CALCULATION ---
+        // proportion is already set: move_error = move_error; 
+        
+        // integral (with windup guard)
+        move_total_error += move_error;
 
-		// proportion
-		move_error = dist;
+        // derivative
+        move_derivative = move_error - move_prev_error;
+        move_prev_error = move_error; // get prev error for next instance
 
-		// integral
-		move_total_error += move_error;
+        // PID output calculation
+        // The scaling factor (360 for turns) will need to be adjusted or removed based on your MOVE_KP tuning
+        move_PID = (MOVE_KP * move_error);
+        move_PID += (MOVE_KD * move_derivative);
+        if (abs(move_total_error) < 2000) { // Windup guard
+            move_PID += (MOVE_KI * move_total_error);
+        }
 
-		// derivative
-		move_derivative = move_error - move_prev_error;
-		
-		// get prev error for next instance
-		move_prev_error = move_error;
+        // --- MOTOR POWER CALCULATION & SLEW RATE APPLICATION ---
+        
+        // This is the raw motor speed requested by the PID loop (Target Speed)
+        // Adjust the scaling (50.0) based on your target units and desired max speed
+        double requestedPower = move_PID * 50.0; 
+        
+        // Calculate the difference between requested speed and current limited speed
+        double powerDifference = requestedPower - currentSlewPower;
 
-		effort = ((MOVE_KP * move_error) / 360);
-		effort += (MOVE_KD * move_derivative);
-		effort += (MOVE_KI * move_total_error);
+        // Limit the acceleration (positive slew)
+        if (powerDifference > SLEW_STEP) {
+            currentSlewPower += SLEW_STEP;
+        } 
+        // Limit the deceleration (negative slew)
+        else if (powerDifference < -SLEW_STEP) {
+            currentSlewPower -= SLEW_STEP;
+        } 
+        // If difference is within the step size, update to target power
+        else {
+            currentSlewPower = requestedPower;
+        }
 
-		int moveSpeed = effort * 127;
-	
-		if(abs(dist) > 0.45) {
-			int lowerBound = std::max(abs(moveSpeed), 20);
-			moveSpeed = std::min(lowerBound, 127);
-			leftMotors.move((int)copysign(moveSpeed, -effort));
-			rightMotors.move((int)copysign(moveSpeed + 5, -effort));
-		} else {
-			leftMotors.move(0);
-			rightMotors.move(0);
-		}
-		
-		if(abs(dist) <= 0.5) {
-			correctCount++;
-		}
+        // Final speed to send to motors after slewing
+        int finalSpeed = (int)currentSlewPower;
+    
+        // --- MOTOR COMMANDS ---
 
-		pros::delay(10);
-	}
+        // Tolerance for stopping (e.g., 0.5 inches/cm)
+        if(abs(move_error) > 0.5) { 
+            // Clamp speed to prevent 0 or low speeds initially, and cap at max speed (e.g., 100 or 127)
+            finalSpeed = std::clamp(finalSpeed, -50, 50); 
 
-	leftMotors.move(0);
-	rightMotors.move(0);
+            // Apply the same speed to all drive motors (forward/backward movement)
+            // Left and right motors move in the same direction, using the calculated power.
+            leftMotors.move_velocity(finalSpeed);
+            rightMotors.move_velocity(finalSpeed);
 
-	pros::delay(250);
-	
+        } else {
+            // Stop and count if within the target tolerance
+            leftMotors.move_velocity(0);
+            rightMotors.move_velocity(0);
+            correctCount++;
+        }
+
+        pros::delay(10);
+    }
+
+    // --- CLEANUP ---
+    leftMotors.move_velocity(0);
+    rightMotors.move_velocity(0);
+    pros::delay(250);
+}
+
+void test_move_pid(double travelDistance) { // Renamed parameter for clarity in my mind
+    int correctCount = 0;
+        
+    // --- INITIALIZATION ---
+    
+    // 1. Get current absolute position (total distance traveled since autonomous started)
+    double current_position = get_total_distance_traveled();
+    
+    // 2. Set the NEW absolute target position: Current Position + Desired Travel Distance
+    double absolute_target = current_position + travelDistance;
+    
+    pros::lcd::print(4, "Start Pos = %lf in", current_position);
+    
+    // Set initial error to the desired travel distance
+    double move_prev_error = travelDistance; 
+
+    // Record initial yaw for straightening
+    double target_yaw = get_yaw_quaternion();
+    
+    // Slew variables
+    double currentSlewPower = 0.0; 
+    const double SLEW_STEP = 1.0; 
+    
+    // PID variables
+    double move_error = 0, move_total_error = 0, move_derivative = 0, move_PID = 0;
+    
+    while (correctCount <= 5) {
+        
+        // --- DISTANCE PID CALCULATION ---
+        // Get the robot's current absolute position
+        double current_distance = get_total_distance_traveled();
+        pros::lcd::print(5, "current_distance = %lf in", current_distance);
+        
+        // Error is the distance remaining to the absolute target
+        move_error = absolute_target - current_distance; 
+
+        // integral
+        move_total_error += move_error;
+
+        // derivative
+        move_derivative = move_error - move_prev_error;
+        move_prev_error = move_error; 
+
+        // PID output calculation
+        move_PID = (MOVE_KP * move_error);
+        move_PID += (MOVE_KD * move_derivative);
+        if (abs(move_total_error) < 2000) { // windup guard
+            move_PID += (MOVE_KI * move_total_error);
+        }
+
+        // --- SLEW RATE APPLICATION ---
+        double requestedPower = move_PID * 50.0; // Raw speed from PID
+        double powerDifference = requestedPower - currentSlewPower;
+
+        // Limit acceleration/deceleration
+        if (powerDifference > SLEW_STEP) currentSlewPower += SLEW_STEP;
+        else if (powerDifference < -SLEW_STEP) currentSlewPower -= SLEW_STEP;
+        else currentSlewPower = requestedPower;
+
+        int finalSpeed = (int)currentSlewPower;
+    
+        // --- STRAIGHTENING CORRECTION (P-Controller) ---
+        double current_yaw = get_yaw_quaternion();
+        double yaw_error = target_yaw - current_yaw;
+        
+        // Normalize yaw error to [-180, 180]
+        if (yaw_error > 180) yaw_error -= 360;
+        else if (yaw_error < -180) yaw_error += 360;
+        
+        // Calculate the turn correction
+        double turn_correction = yaw_error * STRAIGHTENING_KP;
+
+        // --- MOTOR COMMANDS ---
+        if(abs(move_error) > 0.25) { // Distance tolerance (e.g., 0.5 inches)
+            
+            finalSpeed = std::clamp(finalSpeed, -50, 50); 
+
+            // Apply forward speed + turn correction
+            leftMotors.move_velocity(finalSpeed + turn_correction);
+            rightMotors.move_velocity(finalSpeed - turn_correction);
+
+        } else {
+            // Stop and count if within the target tolerance
+            leftMotors.move_velocity(0);
+            rightMotors.move_velocity(0);
+            correctCount++;
+        }
+
+        pros::delay(10); // Loop delay
+    }
+
+    // --- CLEANUP ---
+    leftMotors.move_velocity(0);
+    rightMotors.move_velocity(0);
+    pros::delay(250);
+}
+
+void move(double speed, double seconds) {
+	leftMotors.move_velocity(speed);
+	rightMotors.move_velocity(speed);
+
+	pros::delay(seconds * 1000);
+
+	leftMotors.move_velocity(STOP);
+	rightMotors.move_velocity(STOP);
 }
 
 double get_yaw_quaternion() {
-	pros::quaternion_s_t qt = imu.get_quaternion();
+    pros::quaternion_s_t qtUpper = imuUpper.get_quaternion();
+    // pros::quaternion_s_t qtLower = imuLower.get_quaternion();
 
-	//error fetching quat, retry
-	if (qt.w == PROS_ERR_F) {
-		qt = imu.get_quaternion();
-		if (qt.w == PROS_ERR_F) {
-			// pros::lcd::set_text(5, "ERROR: IMU Quaternion Fetch Failed");
-			return -1.0;
-		}
-	}
+    // ERROR CHECKING BLOCK (Check for immediate failure)
+    if (qtUpper.w == PROS_ERR_F /*|| qtLower.w == PROS_ERR_F*/) {
+        // Attempt a retry
+        qtUpper = imuUpper.get_quaternion();
+        // qtLower = imuLower.get_quaternion();
+        
+        if (qtUpper.w == PROS_ERR_F /*|| qtLower.w == PROS_ERR_F*/) {
+            // PROS_ERR_F is typically -1.0. This prints to the V5 screen.
+            pros::lcd::set_text(5, "IMU FAILURE: RETURNING -1.0"); 
+            return -1.0; 
+        }
+    }
 
-	//convert quat to yaw
-	double yaw = atan2(2 * ((qt.w * qt.z) + (qt.x * qt.y)), 1 - (2 * ((qt.y * qt.y) + (qt.z * qt.z)))); //yaw formula = atan2(2(wz + xy), 1 - 2(y^2 + z^2))
+    // Convert quat to yaw (Yaw is in RADIANS, from -pi to pi)
+    // Formula: atan2(2(wz + xy), 1 - 2(y^2 + z^2))
+    double yawUpper = atan2(2 * (qtUpper.w * qtUpper.z + qtUpper.x * qtUpper.y), 1 - 2 * (qtUpper.y * qtUpper.y + qtUpper.z * qtUpper.z)); 
+    // double yawLower = atan2(2 * (qtLower.w * qtLower.z + qtLower.x * qtLower.y), 1 - 2 * (qtLower.y * qtLower.y + qtLower.z * qtLower.z));
 
-	//returns yaw converted from rad to deg; angle is returned from -180 to 180 (+ 180 for [0, 360])
-	return ((yaw * (180 / M_PI)) + 180);
+    // pros::lcd::print(1, "yawUpper: %lf, yawLower: %lf", yawUpper, yawLower); // Debug print here
+
+    // // --- Dual IMU Averaging and Wraparound Fix (in RADIANS) ---
+    // double diff = yawUpper - yawLower;
+    // double yawAvg;
+    
+    // // If the difference is greater than PI (180 degrees), we have crossed the -pi/pi boundary.
+    // if (std::abs(diff) > M_PI) { 
+    //     if (diff > 0.0) {
+    //         // Upper is high (+3.0), Lower is low (-3.0). Add 2*PI to Lower to align it.
+    //         yawLower += 2 * M_PI;
+    //     } else {
+    //         // Upper is low (-3.0), Lower is high (+3.0). Add 2*PI to Upper to align it.
+    //         yawUpper += 2 * M_PI;
+    //     }
+    // }
+    
+    // // Now that they are aligned in the same 2*PI rotation, average them.
+    // yawAvg = (yawUpper + yawLower) / 2.0;
+
+    // // Normalize the average back to the -pi to pi range if necessary
+    // while (yawAvg > M_PI) yawAvg -= 2 * M_PI;
+    // while (yawAvg <= -M_PI) yawAvg += 2 * M_PI;
+
+
+    // Final conversion: rad to deg, then offset to [0, 360] range for consistency
+    return ((/*yawAvg*/ yawUpper * (180.0 / M_PI)) + 180.0);
 }
 
-double inchesToDegrees (double inches) {
-	return (inches / (M_PI * 3.25)) * 360.0;
+double get_average_encoder_distance(double initial_degrees) {
+    // Distance per degree: (PI * Diameter) / 360
+
+    // Get current total degrees for each side
+    double left_degrees = leftTracker.get_position();
+    double right_degrees = rightTracker.get_position();
+    
+    // Calculate distance traveled from the start point (initial_degrees)
+    double distance_left = (left_degrees - initial_degrees) * CONVERSION_FACTOR;
+    double distance_right = (right_degrees - initial_degrees) * CONVERSION_FACTOR;
+    
+    return (distance_left + distance_right) / 2.0; // Inches
+}
+
+double get_total_distance_traveled() {
+    // Distance per degree: (PI * Diameter) / 360
+    const double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; 
+
+    // Assuming leftTracker and rightTracker have been reset at the start of auto
+    double left_degrees = leftTracker.get_position(); 
+    double right_degrees = rightTracker.get_position();
+    
+    // Calculates the total distance (in inches) from 0, based on raw encoder counts
+    double total_distance = (left_degrees + right_degrees) / 2.0 * CONVERSION_FACTOR;
+    
+    return total_distance;
 }

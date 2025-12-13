@@ -9,17 +9,23 @@
 
 /* - - - - - - - - - - - - - - [PORTS] - - - - - - - - - - - - - - */
 
-constexpr int LEFT_TRACKING_WHEEL_PORT = -11;
-constexpr int RIGHT_TRACKING_WHEEL_PORT =19;
-constexpr int BACK_TRACKING_WHEEL_PORT = 1;//no back tracking port change later
+constexpr int LEFT_TRACKING_WHEEL_PORT = -3;
+constexpr int RIGHT_TRACKING_WHEEL_PORT = 6;
 
-#define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -12, -16}
-#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 20, 17}
+#define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -4, -5}
+#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 7, 8}
 
-constexpr int FRONT_INTAKE_PORT = 21;
-constexpr int MAIN_INTAKE_PORT = 3;
+constexpr int FRONT_INTAKE_PORT = 17;
+constexpr int MAIN_LOWER_INTAKE_PORT = -14;
+constexpr int MAIN_UPPER_INTAKE_PORT = 15;
+constexpr int BACK_INTAKE_PORT = -16;
 
-constexpr int IMU_PORT = 0; // CHANGE LATER
+constexpr int IMU_PORT_ONE = 13;
+constexpr int IMU_PORT_TWO = 8;
+
+constexpr char UNLOADER_PORT = 'A';
+constexpr char CENTER_SCORE_PORT = 'B';
+constexpr char DESCORE_PORT = 'C';
 
 /* - - - - - - - - - - - - - - [DRIVE] - - - - - - - - - - - - - - */
 
@@ -27,12 +33,27 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 1.0;
+constexpr double TURN_KP = 5.0;
 constexpr double TURN_KI = 0.0;
-constexpr double TURN_KD = 0.0;
+constexpr double TURN_KD = 0.2;
 
 constexpr double MOVE_KP = 1.0;
 constexpr double MOVE_KI = 0.0;
-constexpr double MOVE_KD = 0.0;
+constexpr double MOVE_KD = 0.5;
+
+constexpr double STRAIGHTENING_KP = 0.0;
+
+/* - - - - - - - - - - - - - - [GENERAL] - - - - - - - - - - - - - - */
+
+constexpr int MAX_VOLTAGE = 127;
+constexpr int HIGH_VOLTAGE = 100;
+constexpr int MID_VOLTAGE = 60;
+constexpr int LOW_VOLTAGE = 40;
+constexpr int STOP = 0;
+
+/* - - - - - - - - - - - - - - [ODOMETRY] - - - - - - - - - - - - - - */
+
+constexpr double WHEEL_DIAMETER = 3.25;
+constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; 
 
 #endif

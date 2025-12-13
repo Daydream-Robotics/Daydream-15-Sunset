@@ -12,17 +12,19 @@
 // Turn to specified target angle
 void turn_pid(double target);
 
-void move_pid(double target);
+// Turn to specific target angle with slew limiter
+void slew_turn_pid(double target);
 
-void move(int seconds);
+void slew_move_pid(double targetDistance);
 
-void move_pid_back(double target);
+void test_move_pid(double targetDistance);
 
-// Get yaw from imu
+void move(double speed, double seconds);
+
 double get_yaw_quaternion();
 
-double inchesToDegrees (double inches);
+double get_average_encoder_distance(double initial_degrees);
 
-void turn(int seconds);
+double get_total_distance_traveled();
 
 #endif

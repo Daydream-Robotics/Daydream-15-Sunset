@@ -115,6 +115,9 @@ void competition_initialize(void);
  * task, not resume it from where it left off.
  */
 void opcontrol(void);
+
+void moveIntake(int front, int mainUpper, int mainLower, int back, double seconds);
+
 #ifdef __cplusplus
 }
 #endif
