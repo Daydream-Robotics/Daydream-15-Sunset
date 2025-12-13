@@ -117,8 +117,7 @@ void competition_initialize(void);
  */
 void opcontrol(void);
 
-// move all intake motors with set values.
-void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP);
+void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
 
 #ifdef __cplusplus
 }

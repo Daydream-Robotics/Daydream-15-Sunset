@@ -33,13 +33,15 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 1.0;
+constexpr double TURN_KP = 5.0;
 constexpr double TURN_KI = 0.0;
-constexpr double TURN_KD = 0.0;
+constexpr double TURN_KD = 0.2;
 
 constexpr double MOVE_KP = 1.0;
 constexpr double MOVE_KI = 0.0;
-constexpr double MOVE_KD = 0.0;
+constexpr double MOVE_KD = 0.5;
+
+constexpr double STRAIGHTENING_KP = 0.0;
 
 /* - - - - - - - - - - - - - - [GENERAL] - - - - - - - - - - - - - - */
 
@@ -48,5 +50,15 @@ constexpr int HIGH_VOLTAGE = 100;
 constexpr int MID_VOLTAGE = 60;
 constexpr int LOW_VOLTAGE = 40;
 constexpr int STOP = 0;
+
+/* - - - - - - - - - - - - - - [ODOMETRY] - - - - - - - - - - - - - - */
+
+constexpr double WHEEL_DIAMETER = 3.25; // inches
+
+// Distance per degree: (PI * Diameter) / 360
+constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; // converting degrees to inches
+
+// Defines the MAX change allowed per loop (e.g., max change of 5 power units every 10ms)
+const double SLEW_STEP = 1.0; 
 
 #endif

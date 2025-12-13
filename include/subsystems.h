@@ -2,6 +2,9 @@
 
 extern pros::Controller controller;
 
+extern pros::Motor leftTracker;
+extern pros::Motor rightTracker;
+
 extern pros::MotorGroup leftMotors;
 extern pros::MotorGroup rightMotors;
 
