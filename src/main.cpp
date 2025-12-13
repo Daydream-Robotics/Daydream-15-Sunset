@@ -20,20 +20,21 @@ void autonomous() {
 	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
 	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
 
-	while (imuUpper.is_calibrating() /* || imuLower.is_calibrating()*/) {
+	while (imuUpper.is_calibrating()) {
 		pros::delay(20);
 	}
 
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.5);
-
 	// move to match loader
-	test_move_pid(-17); // inches
-	slew_turn_pid(86); // degrees
+	test_move_pid(-14);
+	slew_turn_pid(86);
 	unloader.extend();
+
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
+
 	move(25, 1.5);
 
 	// get blocks
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
 
 	test_move_pid(-10);
 
@@ -42,7 +43,7 @@ void autonomous() {
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
 	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 2.5);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
 	
 	unloader.retract();
 
@@ -53,49 +54,79 @@ void autonomous() {
 
 	moveIntake(STOP, STOP, STOP, STOP, 0);
 
-	// got to other side
-	slew_turn_pid(3);
-	test_move_pid(45);
+	// got to middle
+	slew_turn_pid(-45);
+	test_move_pid(12);
 
-	// get 2 blue
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
-
-	move(10, 2.5);
-
-	move(0, 1.0);
-
-	moveIntake(STOP, STOP, STOP, STOP, 0);
-
-	// go to 2nd match unloader
-	test_move_pid(-5.5);
-
-	slew_turn_pid(86);
-	unloader.extend();
-	move(25, 2.0);
-
-	// get blocks in 2nd long goal
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3);
-
-	test_move_pid(-10);
-
-	move(-10, 1.5);
-
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 2.5);
-	
-	unloader.retract();
-
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
-
+	slew_turn_pid(-86);
+	test_move_pid(8);
 }
 
 void opcontrol() {
 	autonomous();
 
-	while(true) {
-		pros::delay(50);
+	// Set chassis brake mode to coast
+	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+
+	// Set intake motors to brake
+	frontIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	mainUpperIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	mainLowerIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	backIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
+	bool centerScoreToggle = false;
+
+	while(true){
+
+		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
+
+		// Get joystick values
+		int leftY = controller.get_analog(ANALOG_LEFT_Y);
+		int rightY = controller.get_analog(ANALOG_RIGHT_Y);
+
+		// Dead zone for both motors
+		if(abs(leftY) > DEADZONE) {
+			leftMotors.move(leftY);
+		} else {
+			leftMotors.move(0);
+		}
+
+		if(abs(rightY) > DEADZONE) {
+			rightMotors.move(rightY);
+		} else { 
+			rightMotors.move(0);
+		}
+
+		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
+
+		if (controller.get_digital_new_press(DIGITAL_L1)) {
+			unloader.toggle();
+		}
+
+		/* - - - - - - - - - - - - - - [CENTER TOGGLE] - - - - - - - - - - - - - - */
+
+		if (controller.get_digital_new_press(DIGITAL_L2)) {
+			centerScore.toggle();
+			centerScoreToggle = !centerScoreToggle;
+		}
+
+		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
+
+		if (centerScoreToggle) {
+			moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MAX_VOLTAGE); // scoring center high (L2)
+		} else if (controller.get_digital(DIGITAL_R1)) {
+			moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE, -MAX_VOLTAGE); // intaking, top wheels reversed
+		} else if (controller.get_digital(DIGITAL_R2)) {
+			moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE, MAX_VOLTAGE); // scoring long goals
+		} else if (controller.get_digital(DIGITAL_A)) {
+			moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
+		} else {
+			moveIntake(STOP);
+		}
+
+		// Delay added to prevent crashing
+		pros::delay(20);
 	}
 }
 

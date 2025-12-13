@@ -35,6 +35,7 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
+#include "constants.h"
 
 /**
  * You should add more #includes here
@@ -116,7 +117,7 @@ void competition_initialize(void);
  */
 void opcontrol(void);
 
-void moveIntake(int front, int mainUpper, int mainLower, int back, double seconds);
+void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
 
 #ifdef __cplusplus
 }
