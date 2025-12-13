@@ -89,15 +89,15 @@ void opcontrol() {
 
 		// start center goal scoring
 		if (centerScoreToggle) {
-			moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MID_VOLTAGE);
+			moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MAX_VOLTAGE); 
 		} else if (controller.get_digital(DIGITAL_R1)) {
 			if(descoreActive) {
 				moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE);
 			} else {
-				moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, STOP);
+				moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE, -MAX_VOLTAGE);
 			}
 		} else if (controller.get_digital(DIGITAL_R2)) {
-			moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE);
+			moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE, MAX_VOLTAGE);
 		} else if (controller.get_digital(DIGITAL_A)) {
 			moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE);
 		} else {
