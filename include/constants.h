@@ -53,7 +53,12 @@ constexpr int STOP = 0;
 
 /* - - - - - - - - - - - - - - [ODOMETRY] - - - - - - - - - - - - - - */
 
-constexpr double WHEEL_DIAMETER = 3.25;
-constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; 
+constexpr double WHEEL_DIAMETER = 3.25; // inches
+
+// Distance per degree: (PI * Diameter) / 360
+constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; // converting degrees to inches
+
+// Defines the MAX change allowed per loop (e.g., max change of 5 power units every 10ms)
+const double SLEW_STEP = 1.0; 
 
 #endif

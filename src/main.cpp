@@ -24,8 +24,10 @@ void autonomous() {
 		pros::delay(20);
 	}
 
+	/* - - - - - - - - - - - - - - [MATCH LOADER] - - - - - - - - - - - - - - */
+
 	// move to match loader
-	test_move_pid(-14);
+	slew_move_pid(-14);
 	slew_turn_pid(86);
 	unloader.extend();
 
@@ -36,10 +38,14 @@ void autonomous() {
 	// get blocks
 	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
 
-	test_move_pid(-10);
+	/* - - - - - - - - - - - - - - [LONG GOAL] - - - - - - - - - - - - - - */
+
+	// move to long goal
+	slew_move_pid(-10);
 
 	move(-10, 2.0);
 
+	// score 4 team color blocks
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
 	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
@@ -49,22 +55,22 @@ void autonomous() {
 
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
 	
+	/* - - - - - - - - - - - - - - [CENTER] - - - - - - - - - - - - - - */
+
 	// move back from long goal
-	test_move_pid(8);
+	slew_move_pid(8);
 
 	moveIntake(STOP, STOP, STOP, STOP, 0);
 
 	// got to middle
 	slew_turn_pid(-45);
-	test_move_pid(12);
+	slew_move_pid(12);
 
 	slew_turn_pid(-86);
-	test_move_pid(8);
+	slew_move_pid(8);
 }
 
 void opcontrol() {
-	autonomous();
-
 	// Set chassis brake mode to coast
 	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);

@@ -12,7 +12,7 @@
 // Turn to specific target angle with slew limiter
 void slew_turn_pid(double target);
 
-void test_move_pid(double targetDistance);
+void slew_move_pid(double targetDistance);
 
 void move(double speed, double seconds);
 
