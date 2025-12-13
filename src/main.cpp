@@ -24,8 +24,10 @@ void autonomous() {
 		pros::delay(20);
 	}
 
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.5);
+
 	// move to match loader
-	test_move_pid(-14); // inches
+	test_move_pid(-17); // inches
 	slew_turn_pid(86); // degrees
 	unloader.extend();
 	move(25, 1.5);
@@ -35,27 +37,57 @@ void autonomous() {
 
 	test_move_pid(-10);
 
-	move(-10, 1.35);
-
-	unloader.retract();
-
-	pros::delay(500);
+	move(-10, 2.0);
 
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 1.0);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
+	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 2.5);
+	
+	unloader.retract();
 
 	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
 	
-	test_move_pid(7);
+	// move back from long goal
+	test_move_pid(8);
 
 	moveIntake(STOP, STOP, STOP, STOP, 0);
 
-	slew_turn_pid(-45);
-	test_move_pid(12);
+	// got to other side
+	slew_turn_pid(3);
+	test_move_pid(45);
 
-	slew_turn_pid(-86);
+	// get 2 blue
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
 
-	test_move_pid(8);
+	move(10, 2.5);
+
+	move(0, 1.0);
+
+	moveIntake(STOP, STOP, STOP, STOP, 0);
+
+	// go to 2nd match unloader
+	test_move_pid(-5.5);
+
+	slew_turn_pid(86);
+	unloader.extend();
+	move(25, 2.0);
+
+	// get blocks in 2nd long goal
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3);
+
+	test_move_pid(-10);
+
+	move(-10, 1.5);
+
+	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
+	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 2.5);
+	
+	unloader.retract();
+
+	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
 
 }
 
