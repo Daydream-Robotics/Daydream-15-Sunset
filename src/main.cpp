@@ -83,7 +83,7 @@ void opcontrol() {
 
 	bool centerScoreToggle = false;
 
-	while(true){
+	while(true) {
 
 		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
 

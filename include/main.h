@@ -117,6 +117,10 @@ void competition_initialize(void);
  */
 void opcontrol(void);
 
+/**
+ * Controls the intake for a certain amount of time. If no time is given, runs
+ * indefinitely until told otherwise.
+ */
 void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
 
 #ifdef __cplusplus
