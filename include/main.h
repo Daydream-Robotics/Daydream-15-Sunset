@@ -119,9 +119,24 @@ void opcontrol(void);
 
 /**
  * Controls the intake for a certain amount of time. If no time is given, runs
- * indefinitely until told otherwise.
+ * indefinitely until told otherwise. 
+ * 
+ * Use negative values to reverse intake.
+ * 
+ * @param front Power for front intake motor
+ * @param mainUpper Power for main upper intake motor
+ * @param mainLower Power for main lower intake motor
+ * @param back Power for back intake motor
+ * @param seconds Duration to run intake motors in seconds (0 or no input for indefinite)
  */
-void moveIntake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
+void move_intake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
+
+/**
+ * Gets chassis motor values based on type of drive selected (Tank/Split Arcade).
+ * 
+ * @param type Type of drive control scheme
+ */
+void drive(DriveType type);
 
 #ifdef __cplusplus
 }
