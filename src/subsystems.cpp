@@ -19,3 +19,4 @@ pros::IMU imuLower(IMU_PORT_TWO);
 
 pros::adi::Pneumatics unloader(UNLOADER_PORT, false);
 pros::adi::Pneumatics centerScore(CENTER_SCORE_PORT, false);
+pros::adi::Pneumatics descorer(DESCORE_PORT, false);

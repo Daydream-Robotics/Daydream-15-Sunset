@@ -31,12 +31,12 @@ void autonomous() {
 	slew_turn_pid(86);
 	unloader.extend();
 
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
+	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
 
 	move(25, 1.5);
 
 	// get blocks
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
+	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
 
 	/* - - - - - - - - - - - - - - [LONG GOAL] - - - - - - - - - - - - - - */
 
@@ -46,28 +46,28 @@ void autonomous() {
 	move(-10, 2.0);
 
 	// score 4 team color blocks
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
+	move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
+	move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
 	
 	unloader.retract();
 
-	moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
+	//move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
 	
 	/* - - - - - - - - - - - - - - [CENTER] - - - - - - - - - - - - - - */
 
-	// move back from long goal
-	slew_move_pid(8);
+	// // move back from long goal
+	// slew_move_pid(8);
 
-	moveIntake(STOP, STOP, STOP, STOP, 0);
+	// move_intake(STOP, STOP, STOP, STOP, 0);
 
-	// got to middle
-	slew_turn_pid(-45);
-	slew_move_pid(12);
+	// // got to middle
+	// slew_turn_pid(-45);
+	// slew_move_pid(12);
 
-	slew_turn_pid(-86);
-	slew_move_pid(8);
+	// slew_turn_pid(-86);
+	// slew_move_pid(8);
 }
 
 void opcontrol() {
@@ -87,22 +87,7 @@ void opcontrol() {
 
 		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
 
-		// Get joystick values
-		int leftY = controller.get_analog(ANALOG_LEFT_Y);
-		int rightY = controller.get_analog(ANALOG_RIGHT_Y);
-
-		// Dead zone for both motors
-		if(abs(leftY) > DEADZONE) {
-			leftMotors.move(leftY);
-		} else {
-			leftMotors.move(0);
-		}
-
-		if(abs(rightY) > DEADZONE) {
-			rightMotors.move(rightY);
-		} else { 
-			rightMotors.move(0);
-		}
+		drive(DriveType::SPLIT_ARCADE);
 
 		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
 
@@ -117,18 +102,24 @@ void opcontrol() {
 			centerScoreToggle = !centerScoreToggle;
 		}
 
+		/* - - - - - - - - - - - - - - [DESCORE TOGGLE] - - - - - - - - - - - - - - */
+
+		if (controller.get_digital_new_press(DIGITAL_X)) {
+			descorer.toggle();
+		}
+
 		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
 
 		if (centerScoreToggle) {
-			moveIntake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MAX_VOLTAGE); // scoring center high (L2)
+			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MAX_VOLTAGE); // scoring center high (L2)
 		} else if (controller.get_digital(DIGITAL_R1)) {
-			moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE, -MAX_VOLTAGE); // intaking, top wheels reversed
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE, -MAX_VOLTAGE); // intaking, top wheels reversed
 		} else if (controller.get_digital(DIGITAL_R2)) {
-			moveIntake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE, MAX_VOLTAGE); // scoring long goals
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE, MAX_VOLTAGE); // scoring long goals
 		} else if (controller.get_digital(DIGITAL_A)) {
-			moveIntake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
+			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
 		} else {
-			moveIntake(STOP);
+			move_intake(STOP);
 		}
 
 		// Delay added to prevent crashing
@@ -136,7 +127,7 @@ void opcontrol() {
 	}
 }
 
-void moveIntake(int front, int mainUpper, int mainLower, int back, double seconds) {
+void move_intake(int front, int mainUpper, int mainLower, int back, double seconds) {
 
 	// check for stalling later and stop motors if stalling
 
@@ -152,5 +143,51 @@ void moveIntake(int front, int mainUpper, int mainLower, int back, double second
 		mainUpperIntake.move(STOP);
 		mainLowerIntake.move(STOP);
 		backIntake.move(STOP);
+	}
+}
+
+void drive(DriveType type) {
+	switch (type) {
+		case DriveType::TANK: {
+			// Get joystick values
+			int leftY = controller.get_analog(ANALOG_LEFT_Y);
+			int rightY = controller.get_analog(ANALOG_RIGHT_Y);
+
+			// Dead zone for both motors
+			if(abs(leftY) > DEADZONE) {
+				leftMotors.move(leftY);
+			} else {
+				leftMotors.move(STOP);
+			}
+
+			if(abs(rightY) > DEADZONE) {
+				rightMotors.move(rightY);
+			} else { 
+				rightMotors.move(STOP);
+			}
+			break;
+		}
+		case DriveType::SPLIT_ARCADE: {
+			// Get joystick values
+			int power = controller.get_analog(ANALOG_LEFT_Y);
+			int turn = controller.get_analog(ANALOG_RIGHT_X);
+
+			int left = power + turn;
+			int right = power - turn;
+
+			// Dead zone for both motors
+			if(abs(left) > DEADZONE) {
+				leftMotors.move(left);
+			} else {
+				leftMotors.move(0);
+			}
+
+			if(abs(right) > DEADZONE) {
+				rightMotors.move(right);
+			} else { 
+				rightMotors.move(0);
+			}
+			break;
+		}
 	}
 }
