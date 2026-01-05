@@ -24,8 +24,8 @@ constexpr int IMU_PORT_ONE = 13;
 constexpr int IMU_PORT_TWO = 8;
 
 constexpr char UNLOADER_PORT = 'A';
-constexpr char CENTER_SCORE_PORT = 'B';
-constexpr char DESCORE_PORT = 'C';
+constexpr char CENTER_SCORE_PORT = 'C';
+constexpr char DESCORE_PORT = 'B';
 
 /* - - - - - - - - - - - - - - [DRIVE] - - - - - - - - - - - - - - */
 
@@ -60,5 +60,10 @@ constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; // convertin
 
 // Defines the MAX change allowed per loop (e.g., max change of 5 power units every 10ms)
 const double SLEW_STEP = 1.0; 
+
+enum class DriveType {
+    SPLIT_ARCADE,
+    TANK
+};
 
 #endif

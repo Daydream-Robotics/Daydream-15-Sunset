@@ -18,3 +18,4 @@ extern pros::IMU imuLower;
 
 extern pros::adi::Pneumatics unloader;
 extern pros::adi::Pneumatics centerScore;
+extern pros::adi::Pneumatics descorer;
