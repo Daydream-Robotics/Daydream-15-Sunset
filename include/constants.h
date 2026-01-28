@@ -9,11 +9,14 @@
 
 /* - - - - - - - - - - - - - - [PORTS] - - - - - - - - - - - - - - */
 
-constexpr int LEFT_TRACKING_WHEEL_PORT = -3;
-constexpr int RIGHT_TRACKING_WHEEL_PORT = 6;
+// constexpr int LEFT_TRACKING_WHEEL_PORT = -3;
+// constexpr int RIGHT_TRACKING_WHEEL_PORT = 6;
 
-#define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -4, -5}
-#define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 7, 8}
+// #define LEFT_DRIVE_WHEEL_PORTS {LEFT_TRACKING_WHEEL_PORT, -4, -5}
+// #define RIGHT_DRIVE_WHEEL_PORTS {RIGHT_TRACKING_WHEEL_PORT, 7, 8}
+
+#define LEFT_DRIVE_WHEEL_PORTS {-4, -5}
+#define RIGHT_DRIVE_WHEEL_PORTS {7, 8}
 
 constexpr int FRONT_INTAKE_PORT = 17;
 constexpr int MAIN_LOWER_INTAKE_PORT = -14;

@@ -1,7 +1,8 @@
 #include "main.h"
 #include "subsystems.h"
 #include "constants.h"
-#include "odometry.h"
+#include "autoFunctions.h"
+// #include "odometry.h"
 
 void initialize() {
 	pros::lcd::initialize();
@@ -17,57 +18,48 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
-	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
-	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+	move(200,200,1);
 
-	while (imuUpper.is_calibrating()) {
-		pros::delay(20);
-	}
 
-	/* - - - - - - - - - - - - - - [MATCH LOADER] - - - - - - - - - - - - - - */
 
-	// move to match loader
-	slew_move_pid(-14);
-	slew_turn_pid(86);
-	unloader.extend();
 
-	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
 
-	move(25, 1.5);
 
-	// get blocks
-	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
+	// leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+	// rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
 
-	/* - - - - - - - - - - - - - - [LONG GOAL] - - - - - - - - - - - - - - */
+	// while (imuUpper.is_calibrating()) {
+	// 	pros::delay(20);
+	// }
 
-	// move to long goal
-	slew_move_pid(-10);
+	// /* - - - - - - - - - - - - - - [MATCH LOADER] - - - - - - - - - - - - - - */
 
-	move(-10, 2.0);
+	// // move to match loader
+	// slew_move_pid(-14);
+	// slew_turn_pid(86);
+	// unloader.extend();
 
-	// score 4 team color blocks
-	move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
-	move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
+	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
+
+	// move(25, 1.5);
+
+	// // get blocks
+	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
+
+	// /* - - - - - - - - - - - - - - [LONG GOAL] - - - - - - - - - - - - - - */
+
+	// // move to long goal
+	// slew_move_pid(-10);
+
+	// move(-10, 2.0);
+
+	// // score 4 team color blocks
+	// move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
+	// move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
+	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
 	
-	unloader.retract();
-
-	//move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0);
-	
-	/* - - - - - - - - - - - - - - [CENTER] - - - - - - - - - - - - - - */
-
-	// // move back from long goal
-	// slew_move_pid(8);
-
-	// move_intake(STOP, STOP, STOP, STOP, 0);
-
-	// // got to middle
-	// slew_turn_pid(-45);
-	// slew_move_pid(12);
-
-	// slew_turn_pid(-86);
-	// slew_move_pid(8);
+	// unloader.retract();
 }
 
 void opcontrol() {
@@ -127,7 +119,7 @@ void opcontrol() {
 	}
 }
 
-void move_intake(int front, int mainUpper, int mainLower, int back, double seconds) {
+void move_intake(int front, int mainUpper, int mainLower, int back, double seconds=0) {
 
 	// check for stalling later and stop motors if stalling
 
