@@ -2,12 +2,12 @@
 #include "subsystems.h"
 #include "constants.h"
 #include "autoFunctions.h"
-// #include "odometry.h"
+#include "odometry.h"
 
 void initialize() {
 	pros::lcd::initialize();
 	imuUpper.reset();
-	imuLower.reset();
+	// imuLower.reset();
 
 	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
 	rightMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
@@ -18,11 +18,8 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
-	move(200,200,1);
-
-
-
-
+	// move(200,200,1);
+	move_time_s(40, 3, 2 ,1);
 
 
 	// leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
@@ -68,10 +65,11 @@ void opcontrol() {
 	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 
 	// Set intake motors to brake
-	frontIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	mainUpperIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	mainLowerIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	backIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	lowIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	midIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	highIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
+	
 
 	bool centerScoreToggle = false;
 
@@ -103,13 +101,13 @@ void opcontrol() {
 		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
 
 		if (centerScoreToggle) {
-			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -MAX_VOLTAGE); // scoring center high (L2)
+			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE); // scoring center high (L2)
 		} else if (controller.get_digital(DIGITAL_R1)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE, -MAX_VOLTAGE); // intaking, top wheels reversed
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // intaking, top wheels reversed
 		} else if (controller.get_digital(DIGITAL_R2)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE, MAX_VOLTAGE); // scoring long goals
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE); // scoring long goals
 		} else if (controller.get_digital(DIGITAL_A)) {
-			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
+			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
 		} else {
 			move_intake(STOP);
 		}
@@ -119,22 +117,20 @@ void opcontrol() {
 	}
 }
 
-void move_intake(int front, int mainUpper, int mainLower, int back, double seconds) {
+void move_intake(int low, int mid, int high, double seconds) {
 
 	// check for stalling later and stop motors if stalling
+	lowIntake.move(low);
+	midIntake.move(mid);
+	highIntake.move(high);
 
-	frontIntake.move(front);
-	mainUpperIntake.move(mainUpper);
-	mainLowerIntake.move(mainLower);
-	backIntake.move(back);
 
 	if (seconds != 0) {
 		pros::delay(seconds * 1000);
 
-		frontIntake.move(STOP);
-		mainUpperIntake.move(STOP);
-		mainLowerIntake.move(STOP);
-		backIntake.move(STOP);
+		lowIntake.move(STOP);
+		midIntake.move(STOP);
+		highIntake.move(STOP);
 	}
 }
 

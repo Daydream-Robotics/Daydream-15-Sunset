@@ -129,7 +129,7 @@ void opcontrol(void);
  * @param back Power for back intake motor
  * @param seconds Duration to run intake motors in seconds (0 or no input for indefinite)
  */
-void move_intake(int front, int mainUpper = STOP, int mainLower = STOP, int back = STOP, double seconds = 0.0);
+void move_intake(int low, int mid = STOP, int high = STOP, double seconds = 0.0);
 
 /**
  * Gets chassis motor values based on type of drive selected (Tank/Split Arcade).

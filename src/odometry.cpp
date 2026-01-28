@@ -308,13 +308,13 @@ double get_yaw_quaternion() {
     return ((yaw * (180.0 / M_PI)) + 180.0);
 }
 
-double get_total_distance_traveled() {
-    // Assuming leftTracker and rightTracker have been reset at the start of auto
-    double leftDegrees = leftTracker.get_position(); 
-    double rightDegrees = rightTracker.get_position();
+// double get_total_distance_traveled() {
+//     // Assuming leftTracker and rightTracker have been reset at the start of auto
+//     double leftDegrees = leftTracker.get_position(); 
+//     double rightDegrees = rightTracker.get_position();
     
-    // Calculates the total distance (in inches) from 0, based on raw encoder counts
-    double totalDistance = (leftDegrees + rightDegrees) / 2.0 * CONVERSION_FACTOR;
+//     // Calculates the total distance (in inches) from 0, based on raw encoder counts
+//     double totalDistance = (leftDegrees + rightDegrees) / 2.0 * CONVERSION_FACTOR;
     
-    return totalDistance;
-}
+//     return totalDistance;
+// }
