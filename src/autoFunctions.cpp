@@ -29,8 +29,23 @@ void move_time_s(int speed, double seconds, int ramp_strength) {
         pros::delay(10);
     }
 
-    
-    
+    auto ramp_start = std::chrono::steady_clock::now();
+
+    while (true) {
+        double ramp_elapsed = (std::chrono::steady_clock::now() - ramp_start).count();
+        
+        if (ramp_elapsed > s_curve_duration_sec) {
+            break;
+        }
+
+        double curve = (std::cos(ramp_elapsed / s_curve_duration_sec * M_PI) + 1);
+        double final_modifier = std::pow(curve, ramp_strength);
+        move(static_cast<int>(speed * final_modifier));
+
+        pros::delay(10);
+    }
+
+    move(0);
 }
 
 void turn(int speed, int direction){
