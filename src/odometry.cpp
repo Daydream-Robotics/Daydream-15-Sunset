@@ -7,9 +7,71 @@
 
 #include <cmath>
 
-double heading, optimizedAngle, tempAngle;
+double heading, tempAngle;
+
+void turn_pid(double target, double weightAdjustment) {
+    double optimized_angle;
+    double prevTheta= 0; // remove the init if broke
+    double theta = 0;
+
+	int correctCount = 0;
+	heading = get_yaw_quaternion();
+	double turn_error = 0, turn_total_error = 0, turn_derivative = 0, turn_prev_error = 0, turn_PID = 0;
+	
+	while (correctCount <= 10) {
+		
+		heading = get_yaw_quaternion() - 180;
+		optimized_angle = target - heading;
+
+		if (optimized_angle > 180) optimized_angle -= 360;
+		else if (optimized_angle < -180) optimized_angle += 360;
+		if (optimized_angle == 180) optimized_angle = 179.99;
+
+
+		// proportion
+		turn_error = optimized_angle;
+
+		// integral
+		turn_total_error += turn_error;
+
+		// derivative
+		turn_derivative = turn_error - turn_prev_error;
+		
+		// get prev error for next instance
+		turn_prev_error = turn_error;
+
+		turn_PID = ((TURN_KP * turn_error) / 360);
+		turn_PID += (TURN_KD * turn_derivative);
+		if (abs(turn_total_error) < 2000) {
+			turn_PID += (TURN_KI * turn_total_error);
+		}
+
+		int turnSpeed = turn_PID * 65;
+	
+		if(abs(optimized_angle) > 0.2) {
+			turnSpeed = std::clamp(std::abs(turnSpeed), 2, 65);
+
+			leftMotors.move_velocity((int)copysign(turnSpeed, turn_PID));
+			rightMotors.move_velocity(-(int)copysign(turnSpeed, turn_PID));
+
+		}
+		
+		if(abs(optimized_angle) <= 0.2) {
+			correctCount++;
+		}
+
+		pros::delay(10);
+	}
+
+	leftMotors.move(0);
+	rightMotors.move(0);
+
+	pros::delay(250);
+	
+}
 
 void slew_turn_pid(double target) {
+    double optimizedAngle;
     int correctCount = 0;
 
 	/* - - - - - - - - - - - - - - [INITIALIZATION] - - - - - - - - - - - - - - */
