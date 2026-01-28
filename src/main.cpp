@@ -119,7 +119,7 @@ void opcontrol() {
 	}
 }
 
-void move_intake(int front, int mainUpper, int mainLower, int back, double seconds=0) {
+void move_intake(int front, int mainUpper, int mainLower, int back, double seconds) {
 
 	// check for stalling later and stop motors if stalling
 

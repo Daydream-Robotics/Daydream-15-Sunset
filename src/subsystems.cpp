@@ -3,8 +3,8 @@
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor leftTracker(LEFT_TRACKING_WHEEL_PORT);
-pros::Motor rightTracker(RIGHT_TRACKING_WHEEL_PORT);
+// pros::Motor leftTracker(LEFT_TRACKING_WHEEL_PORT);
+// pros::Motor rightTracker(RIGHT_TRACKING_WHEEL_PORT);
 
 pros::MotorGroup leftMotors(LEFT_DRIVE_WHEEL_PORTS);
 pros::MotorGroup rightMotors(RIGHT_DRIVE_WHEEL_PORTS);
