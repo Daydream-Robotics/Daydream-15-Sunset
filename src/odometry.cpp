@@ -9,7 +9,7 @@
 
 double heading, tempAngle;
 
-void turn_pid(double target, double weightAdjustment) {
+void turn_pid(double target) {
     double optimized_angle;
     double prevTheta= 0; // remove the init if broke
     double theta = 0;
@@ -176,116 +176,116 @@ void slew_turn_pid(double target) {
     pros::delay(250);
 }
 
-void slew_move_pid(double travelDistance) {
-    int correctCount = 0;
+// void slew_move_pid(double travelDistance) {
+//     int correctCount = 0;
         
-    /* - - - - - - - - - - - - - - [INITIALIZATION] - - - - - - - - - - - - - - */
+//     /* - - - - - - - - - - - - - - [INITIALIZATION] - - - - - - - - - - - - - - */
 
-    // Get current absolute position (total distance traveled since autonomous started)
-    double currentPosition = get_total_distance_traveled();
+//     // Get current absolute position (total distance traveled since autonomous started)
+//     double currentPosition = get_total_distance_traveled();
     
-    // Set the NEW absolute target position: Current Position + Desired Travel Distance
-    double absoluteTarget = currentPosition + travelDistance;
+//     // Set the NEW absolute target position: Current Position + Desired Travel Distance
+//     double absoluteTarget = currentPosition + travelDistance;
     
-    pros::lcd::print(4, "Start Pos = %lf in", currentPosition);
+//     pros::lcd::print(4, "Start Pos = %lf in", currentPosition);
     
-    // Set initial error to the desired travel distance
-    double movePrevError = travelDistance; 
+//     // Set initial error to the desired travel distance
+//     double movePrevError = travelDistance; 
 
-    // Record initial yaw for straightening
-    double targetYaw = get_yaw_quaternion();
+//     // Record initial yaw for straightening
+//     double targetYaw = get_yaw_quaternion();
     
-    // PID variables
-    double moveError = 0, moveTotalError = 0, moveDerivative = 0, movePID = 0;
+//     // PID variables
+//     double moveError = 0, moveTotalError = 0, moveDerivative = 0, movePID = 0;
 
-	// Slew variables
-    double currentSlewPower = 0.0; 
+// 	// Slew variables
+//     double currentSlewPower = 0.0; 
     
-    while (correctCount <= 5) {
+//     while (correctCount <= 5) {
 
-		/* - - - - - - - - - - - - - - [DISTANCE PID CALCULATION] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [DISTANCE PID CALCULATION] - - - - - - - - - - - - - - */
 
-        // Get current absolute position
-        double current_distance = get_total_distance_traveled();
-        pros::lcd::print(5, "current_distance = %lf in", current_distance);
+//         // Get current absolute position
+//         double current_distance = get_total_distance_traveled();
+//         pros::lcd::print(5, "current_distance = %lf in", current_distance);
         
-        // Error is the distance remaining to the absolute target
-        moveError = absoluteTarget - current_distance; 
+//         // Error is the distance remaining to the absolute target
+//         moveError = absoluteTarget - current_distance; 
 
-        // integral
-        moveTotalError += moveError;
+//         // integral
+//         moveTotalError += moveError;
 
-        // derivative
-        moveDerivative = moveError - movePrevError;
-        movePrevError = moveError; 
+//         // derivative
+//         moveDerivative = moveError - movePrevError;
+//         movePrevError = moveError; 
 
-        // PID output calculation
-        movePID = (MOVE_KP * moveError);
-        movePID += (MOVE_KD * moveDerivative);
-        if (abs(moveTotalError) < 2000) { // windup guard
-            movePID += (MOVE_KI * moveTotalError);
-        }
+//         // PID output calculation
+//         movePID = (MOVE_KP * moveError);
+//         movePID += (MOVE_KD * moveDerivative);
+//         if (abs(moveTotalError) < 2000) { // windup guard
+//             movePID += (MOVE_KI * moveTotalError);
+//         }
 
-		/* - - - - - - - - - - - - - - [SLEW RATE APPLICATION] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [SLEW RATE APPLICATION] - - - - - - - - - - - - - - */
 
-        double requestedPower = movePID * 50.0; // Raw speed from PID
-        double powerDifference = requestedPower - currentSlewPower;
+//         double requestedPower = movePID * 50.0; // Raw speed from PID
+//         double powerDifference = requestedPower - currentSlewPower;
 
-        // Limit acceleration/deceleration
-        if (powerDifference > SLEW_STEP) currentSlewPower += SLEW_STEP;
-        else if (powerDifference < -SLEW_STEP) currentSlewPower -= SLEW_STEP;
-        else currentSlewPower = requestedPower;
+//         // Limit acceleration/deceleration
+//         if (powerDifference > SLEW_STEP) currentSlewPower += SLEW_STEP;
+//         else if (powerDifference < -SLEW_STEP) currentSlewPower -= SLEW_STEP;
+//         else currentSlewPower = requestedPower;
 
-        int finalSpeed = (int)currentSlewPower;
+//         int finalSpeed = (int)currentSlewPower;
     
-		/* - - - - - - - - - - - - - - [STRAIGHTENING CORRECTION] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [STRAIGHTENING CORRECTION] - - - - - - - - - - - - - - */
 
-        double currentYaw = get_yaw_quaternion();
-        double yawError = targetYaw - currentYaw;
+//         double currentYaw = get_yaw_quaternion();
+//         double yawError = targetYaw - currentYaw;
         
-        // Normalize yaw error to [-180, 180]
-        if (yawError > 180) yawError -= 360;
-        else if (yawError < -180) yawError += 360;
+//         // Normalize yaw error to [-180, 180]
+//         if (yawError > 180) yawError -= 360;
+//         else if (yawError < -180) yawError += 360;
         
-        // Calculate the turn correction
-        double turnCorrection = yawError * STRAIGHTENING_KP;
+//         // Calculate the turn correction
+//         double turnCorrection = yawError * STRAIGHTENING_KP;
 
-		/* - - - - - - - - - - - - - - [MOTOR COMMANDS] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [MOTOR COMMANDS] - - - - - - - - - - - - - - */
 
-        if(abs(moveError) > 0.25) { // Distance tolerance (e.g., 0.5 inches)
+//         if(abs(moveError) > 0.25) { // Distance tolerance (e.g., 0.5 inches)
             
-            finalSpeed = std::clamp(finalSpeed, -50, 50); 
+//             finalSpeed = std::clamp(finalSpeed, -50, 50); 
 
-            // Apply forward speed + turn correction
-            leftMotors.move_velocity(finalSpeed + turnCorrection);
-            rightMotors.move_velocity(finalSpeed - turnCorrection);
+//             // Apply forward speed + turn correction
+//             leftMotors.move_velocity(finalSpeed + turnCorrection);
+//             rightMotors.move_velocity(finalSpeed - turnCorrection);
 
-        } else {
-            // Stop and count if within the target tolerance
-            leftMotors.move_velocity(0);
-            rightMotors.move_velocity(0);
-            correctCount++;
-        }
+//         } else {
+//             // Stop and count if within the target tolerance
+//             leftMotors.move_velocity(0);
+//             rightMotors.move_velocity(0);
+//             correctCount++;
+//         }
 
-        pros::delay(10); // Loop delay
-    }
+//         pros::delay(10); // Loop delay
+//     }
 
-	/* - - - - - - - - - - - - - - [CLEANUP] - - - - - - - - - - - - - - */
+// 	/* - - - - - - - - - - - - - - [CLEANUP] - - - - - - - - - - - - - - */
 
-    leftMotors.move_velocity(0);
-    rightMotors.move_velocity(0);
-    pros::delay(250);
-}
+//     leftMotors.move_velocity(0);
+//     rightMotors.move_velocity(0);
+//     pros::delay(250);
+// }
 
-void move(double speed, double seconds) {
-	leftMotors.move_velocity(speed);
-	rightMotors.move_velocity(speed);
+// void move(double speed, double seconds) {
+// 	leftMotors.move_velocity(speed);
+// 	rightMotors.move_velocity(speed);
 
-	pros::delay(seconds * 1000);
+// 	pros::delay(seconds * 1000);
 
-	leftMotors.move_velocity(STOP);
-	rightMotors.move_velocity(STOP);
-}
+// 	leftMotors.move_velocity(STOP);
+// 	rightMotors.move_velocity(STOP);
+// }
 
 double get_yaw_quaternion() {
     pros::quaternion_s_t qt = imuUpper.get_quaternion();
