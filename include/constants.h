@@ -20,7 +20,7 @@
 
 constexpr int LOW_INTAKE_PORT = -10;
 constexpr int MID_INTAKE_PORT = -11;
-constexpr int HIGH_INTAKE_PORT = 4;
+constexpr int HIGH_INTAKE_PORT = -4;
 
 constexpr int IMU_PORT_ONE = 5;
 // constexpr int IMU_PORT_TWO = 8;
@@ -35,9 +35,9 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 5.0;
+constexpr double TURN_KP = 2.5;
 constexpr double TURN_KI = 0.0;
-constexpr double TURN_KD = 0.2;
+constexpr double TURN_KD = 0.0;
 
 constexpr double MOVE_KP = 1.0;
 constexpr double MOVE_KI = 0.0;

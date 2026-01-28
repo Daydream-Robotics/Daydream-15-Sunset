@@ -23,6 +23,8 @@ void turn_pid(double target) {
 		heading = get_yaw_quaternion() - 180;
 		optimized_angle = target - heading;
 
+        pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
+
 		if (optimized_angle > 180) optimized_angle -= 360;
 		else if (optimized_angle < -180) optimized_angle += 360;
 		if (optimized_angle == 180) optimized_angle = 179.99;
@@ -54,9 +56,7 @@ void turn_pid(double target) {
 			leftMotors.move_velocity((int)copysign(turnSpeed, turn_PID));
 			rightMotors.move_velocity(-(int)copysign(turnSpeed, turn_PID));
 
-		}
-		
-		if(abs(optimized_angle) <= 0.2) {
+		}else{
 			correctCount++;
 		}
 
@@ -103,7 +103,7 @@ void slew_turn_pid(double target) {
         heading = get_yaw_quaternion() - 180;
         optimizedAngle = target - heading; // optimizedAngle is a global variable
             
-        pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
+        // pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
 
         if (optimizedAngle > 180) optimizedAngle -= 360;
         else if (optimizedAngle < -180) optimizedAngle += 360;
@@ -296,7 +296,7 @@ double get_yaw_quaternion() {
         
         if (qt.w == PROS_ERR_F) {
             pros::lcd::set_text(5, "IMU FAILURE: RETURNING -1.0"); 
-            return -1.0; 
+            return -1.0;
         }
     }
 

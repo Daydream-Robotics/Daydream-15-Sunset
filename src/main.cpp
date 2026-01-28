@@ -19,7 +19,21 @@ void competition_initialize() {}
 
 void autonomous() {
 	// move(200,200,1);
-	move_time_s(40, 3, 2 ,1);
+	move_time_s(40, 3.5, 2 ,1);
+	turn_pid(90);
+
+	unloader.toggle();
+	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE);
+	pros::delay(1000);
+
+	move_time(40, 1);
+
+	pros::delay(3000);
+
+	
+
+	
+
 	
 
 
