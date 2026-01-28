@@ -6,6 +6,8 @@
 void move(int leftVelocity, int rightVelocity, double time);
 void move(int leftVelocity, int rightVelocity);
 void move(int speed);
-void move_time_s(int speed, double seconds, int ramp_strength);
+void move_time_s(int speed, double seconds, double ramp_duration, int ramp_strength);
+void rampDown_s(int speed, double ramp_duration, int ramp_strength);
+void turn(int speed, int direction, double time);
 
-#endif // AUTO_FUNCTIONS_H
+#endif
