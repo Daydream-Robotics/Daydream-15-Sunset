@@ -12,10 +12,10 @@ void move(int speed){
     move(speed, speed);
 }
 
-void move_time_s(int speed, double seconds, int ramp_strength) {
-    double s_curve_duration_sec = 2;
-    if (seconds < s_curve_duration_sec) {
-        s_curve_duration_sec = seconds;
+void move_time_s(int speed, double seconds, int ramp_strength, double ramp_duration) {
+    // double s_curve_duration_sec = 2;
+    if (seconds < ramp_duration) {
+        ramp_duration = seconds;
     }
 
     auto start = std::chrono::steady_clock::now();
@@ -23,7 +23,7 @@ void move_time_s(int speed, double seconds, int ramp_strength) {
     move(speed);    
 
     std::chrono::duration<double> elapsed = std::chrono::steady_clock::now() - start;
-    double s_curve_end_time = seconds - s_curve_duration_sec;
+    double s_curve_end_time = seconds - ramp_duration;
     while (elapsed.count() < s_curve_end_time) {
         elapsed = std::chrono::steady_clock::now() - start;
         pros::delay(10);
@@ -34,11 +34,11 @@ void move_time_s(int speed, double seconds, int ramp_strength) {
     while (true) {
         double ramp_elapsed = (std::chrono::steady_clock::now() - ramp_start).count();
         
-        if (ramp_elapsed > s_curve_duration_sec) {
+        if (ramp_elapsed > ramp_duration) {
             break;
         }
 
-        double curve = (std::cos(ramp_elapsed / s_curve_duration_sec * M_PI) + 1);
+        double curve = (std::cos(ramp_elapsed / ramp_duration * M_PI) + 1);
         double final_modifier = std::pow(curve, ramp_strength);
         move(static_cast<int>(speed * final_modifier));
 
@@ -48,9 +48,9 @@ void move_time_s(int speed, double seconds, int ramp_strength) {
     move(0);
 }
 
-void turn(int speed, int direction){
+void turn(int speed, int direction, double time){
     speed = speed*direction;
-    move(speed, -speed);
+    move(speed, -speed, time);
 }
 
 void move(int leftVelocity, int rightVelocity, double time) {
