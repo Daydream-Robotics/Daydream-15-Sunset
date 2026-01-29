@@ -29,7 +29,7 @@ void move_time(int leftVelocity, int rightVelocity, double seconds) {
     move(0);
 }
 
-void move_time(int speed, double seconds) {
+void move_time_pid(int speed, double seconds) {
     double heading;
     double kp = 2;
     double original_heading = get_yaw_quaternion();
@@ -145,5 +145,16 @@ void rampDown_s(int speed, double ramp_duration, int ramp_strength) {
 }
 
 
+void shimmy_time(double seconds) {
+    auto start_time = std::chrono::steady_clock::now();
+    while (true) {
+        auto elapsed_time = std::chrono::steady_clock::now() - start_time;
+        if (elapsed_time.count() > seconds) {
+            break;
+        }
 
+        move_time_pid(-25, 0.25);
+        move_time_pid(25, 0.3);
+    }
+}
 
