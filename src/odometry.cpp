@@ -23,7 +23,7 @@ void turn_pid(double target) {
 		heading = get_yaw_quaternion() - 180;
 		optimized_angle = target - heading;
 
-        pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
+        // pros::lcd::print(2, "Heading = %lf, Target = %lf", heading, target);
 
 		if (optimized_angle > 180) optimized_angle -= 360;
 		else if (optimized_angle < -180) optimized_angle += 360;
