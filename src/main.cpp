@@ -31,16 +31,18 @@ void autonomous() {
 	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
 	pros::delay(1000);
 
-	forward_backward_move(40, 1);
+	move_time(30, 1);
 
-	forward_backward_move(-25, 0.25);
-	forward_backward_move(25, 0.25);
+	//shimmy
+	move_time(-25, 0.25);
+	move_time(25, 0.25);
 
-	pros::delay(3000);
+	// intake delay
+	pros::delay(2500);
 
 	// Move to long goal
 	unloader.toggle();
-	move_time_s(-40, 2.5, 1, 1);
+	move_time_s(-40, 2.5, 2, 1);
 
 	// Unlodge Balls
 	move_intake(STOP, -HIGH_VOLTAGE, -HIGH_VOLTAGE);
