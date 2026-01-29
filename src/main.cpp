@@ -23,7 +23,7 @@ void autonomous() {
 	descorer.set_value(true);
 
 	// move(200,200,1);
-	move_time_s(40, 3.5, 2 ,1);
+	move_time_s(40, 3.5, 2 ,1); // 3.5 seconds
 	unloader.toggle();
 	turn_pid(90);
 
@@ -31,22 +31,31 @@ void autonomous() {
 	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
 	pros::delay(1000);
 
-	move_time(30, 1);
+	// move to loader
+	move_time_pid(40, 1);
 
 	//shimmy
-	move_time(-25, 0.25);
-	move_time(25, 0.25);
+	move_time_pid(-25, 0.25);
+	move_time_pid(25, 0.5);
+
+	// shimmy_time(0.5); //test
+	// pros::delay(2000); //test
+
+	// hold pressure
+	// move(0);
 
 	// intake delay
 	pros::delay(2500);
-
+	move_intake(STOP, STOP, STOP);
+	
 	// Move to long goal
+	move_time_s(-40, 3.25, 2, 1);
+	pros::delay(10);
 	unloader.toggle();
-	move_time_s(-40, 2.5, 2, 1);
 
 	// Unlodge Balls
 	move_intake(STOP, -HIGH_VOLTAGE, -HIGH_VOLTAGE);
-	pros::delay(400);
+	pros::delay(500);
 	
 	// Score on long goal
 	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE);
@@ -61,10 +70,15 @@ void autonomous() {
 	move_time_s(-50, 1.1, 0.5, 1);
 	turn_pid(90);
 
-	move_time(40, 1.9);
+	move_time_pid(40, 1.9);
 	turn_pid(-10);
 
-	move_time(-150, 1.25);
+	// park
+	move_time_pid(-150, 0.65);
+	pros::delay(500);
+
+	// climb park
+	move_time_pid(40, 0.6); // 40 0.5
 
 }
 
