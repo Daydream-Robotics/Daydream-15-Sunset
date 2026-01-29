@@ -18,60 +18,49 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
+
+	centerScore.set_value(true);
+	descorer.set_value(true);
+
 	// move(200,200,1);
 	move_time_s(40, 3.5, 2 ,1);
 	turn_pid(90);
 
 	unloader.toggle();
-	move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE);
+	centerScore.set_value(false);
+	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
 	pros::delay(1000);
 
 	move_time(40, 1);
 
+	move_time(-25, 0.25);
+	move_time(25, 0.25);
+
 	pros::delay(3000);
 
+	// Move to long goal
+	unloader.toggle();
+	move_time_s(-40, 2.5, 1, 1);
+
+	// Unlodge Balls
+	move_intake(STOP, -HIGH_VOLTAGE, -HIGH_VOLTAGE);
+	pros::delay(400);
 	
+	// Score on long goal
+	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE);
+	pros::delay(3000);
+	move_intake(STOP, STOP, STOP);
 
-	
+	// Move forward to align for park
+	move_time_s(40, 1, 1, 1);
+	turn_pid(0);
 
-	
+	// Back towards parking zone
+	move_time_s(-80, 1.6, 0.5, 1);
+	turn_pid(90);
 
+	move_time(120, 1.75);
 
-	// leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
-	// rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
-
-	// while (imuUpper.is_calibrating()) {
-	// 	pros::delay(20);
-	// }
-
-	// /* - - - - - - - - - - - - - - [MATCH LOADER] - - - - - - - - - - - - - - */
-
-	// // move to match loader
-	// slew_move_pid(-14);
-	// slew_turn_pid(86);
-	// unloader.extend();
-
-	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.0);
-
-	// move(25, 1.5);
-
-	// // get blocks
-	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, -HIGH_VOLTAGE, 3.0);
-
-	// /* - - - - - - - - - - - - - - [LONG GOAL] - - - - - - - - - - - - - - */
-
-	// // move to long goal
-	// slew_move_pid(-10);
-
-	// move(-10, 2.0);
-
-	// // score 4 team color blocks
-	// move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.5);
-	// move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE, 0.1);
-	// move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE, 0.75);
-	
-	// unloader.retract();
 }
 
 void opcontrol() {
@@ -92,7 +81,7 @@ void opcontrol() {
 
 		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
 
-		drive(DriveType::SPLIT_ARCADE);
+		drive(DriveType::TANK);
 
 		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
 
@@ -113,16 +102,24 @@ void opcontrol() {
 			descorer.toggle();
 		}
 
+		if (controller.get_digital_new_press(DIGITAL_A)) {
+			centerScore.set_value(true);
+		}
+
+		if (controller.get_digital_new_press(DIGITAL_B)) {
+			centerScore.set_value(false);
+		}
+
 		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
 
 		if (centerScoreToggle) {
 			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE); // scoring center high (L2)
 		} else if (controller.get_digital(DIGITAL_R1)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // intaking, top wheels reversed
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); // intaking, top wheels reversed
 		} else if (controller.get_digital(DIGITAL_R2)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, HIGH_VOLTAGE); // scoring long goals
+			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // scoring long goals
 		} else if (controller.get_digital(DIGITAL_A)) {
-			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, -HIGH_VOLTAGE); // outtaking / scoring center low
+			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, HIGH_VOLTAGE); // outtaking / scoring center low
 		} else {
 			move_intake(STOP);
 		}
