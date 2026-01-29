@@ -10,6 +10,8 @@ void move(int leftVelocity, int rightVelocity) {
 }
 
 void forward_backward_move(int velocity,double seconds){
+    allMotors.move_velocity(10);
+    pros::delay(100);
     allMotors.move_velocity(velocity);
     pros::delay(1000*seconds);
     allMotors.move_velocity(0);
