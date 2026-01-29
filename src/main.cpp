@@ -31,10 +31,10 @@ void autonomous() {
 	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
 	pros::delay(1000);
 
-	move_time(40, 1);
+	forward_backward_move(40, 1);
 
-	move_time(-25, 0.25);
-	move_time(25, 0.25);
+	forward_backward_move(-25, 0.25);
+	forward_backward_move(25, 0.25);
 
 	pros::delay(3000);
 

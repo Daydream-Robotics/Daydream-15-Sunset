@@ -4,6 +4,7 @@ extern pros::Controller controller;
 
 extern pros::MotorGroup leftMotors;
 extern pros::MotorGroup rightMotors;
+extern pros::MotorGroup allMotors;
 
 extern pros::Motor lowIntake;
 extern pros::Motor midIntake;

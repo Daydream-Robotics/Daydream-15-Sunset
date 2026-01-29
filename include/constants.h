@@ -17,6 +17,7 @@
 
 #define LEFT_DRIVE_WHEEL_PORTS {-7, -8, -9}
 #define RIGHT_DRIVE_WHEEL_PORTS {1, 2, 3}
+#define ALL_DRIVE_WHEEL_PORTS {-7,-8,-9,1,2,3}
 
 constexpr int LOW_INTAKE_PORT = -10;
 constexpr int MID_INTAKE_PORT = -11;

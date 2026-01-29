@@ -8,9 +8,10 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 pros::MotorGroup leftMotors(LEFT_DRIVE_WHEEL_PORTS);
 pros::MotorGroup rightMotors(RIGHT_DRIVE_WHEEL_PORTS);
+pros::MotorGroup allMotors(ALL_DRIVE_WHEEL_PORTS);
 
 pros::Motor lowIntake(LOW_INTAKE_PORT);
-pros::Motor midIntake(MID_INTAKE_PORT);
+pros::Motor midIntake(MID_INTAKE_PORT); 
 pros::Motor highIntake(HIGH_INTAKE_PORT);
 
 pros::IMU imuUpper(IMU_PORT_ONE);
