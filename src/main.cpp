@@ -24,9 +24,9 @@ void autonomous() {
 
 	// move(200,200,1);
 	move_time_s(40, 3.5, 2 ,1);
+	unloader.toggle();
 	turn_pid(90);
 
-	unloader.toggle();
 	centerScore.set_value(false);
 	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
 	pros::delay(1000);
@@ -59,10 +59,10 @@ void autonomous() {
 	move_time_s(-50, 1.1, 0.5, 1);
 	turn_pid(90);
 
-	move_time(40, 1.7);
-	turn_pid(0);
+	move_time(40, 1.9);
+	turn_pid(-10);
 
-	move_time(-120, 1.75);
+	move_time(-150, 1.25);
 
 }
 
