@@ -56,10 +56,13 @@ void autonomous() {
 	turn_pid(0);
 
 	// Back towards parking zone
-	move_time_s(-80, 1.6, 0.5, 1);
+	move_time_s(-50, 1.1, 0.5, 1);
 	turn_pid(90);
 
-	move_time(120, 1.75);
+	move_time(40, 1.7);
+	turn_pid(0);
+
+	move_time(-120, 1.75);
 
 }
 
