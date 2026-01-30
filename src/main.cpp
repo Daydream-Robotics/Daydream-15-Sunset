@@ -22,63 +22,86 @@ void autonomous() {
 	centerScore.set_value(true);
 	descorer.set_value(true);
 
-	// move(200,200,1);
-	move_time_s(40, 3.5, 2 ,1); // 3.5 seconds
-	unloader.toggle();
+	// move between long goal and loader
+	// move_time_s(80, 2.2, 2, 1);
+	move_time_s(40, 3.45, 2 ,1); // 3.5 seconds
+
+	unloader.set_value(true);
 	turn_pid(90);
 
 	centerScore.set_value(false);
-	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); 
+	move_intake(200, 200, -50);
 	pros::delay(1000);
 
 	// move to loader
-	move_time_pid(40, 1);
+	// move_time_s(30, 0.9, 1, 1);
+	// move_time_pid_stop(40, 0.5);
 
+	move_time_pid_stop(40, 1);
+
+	// pros::delay(1000);
+	
 	//shimmy
-	move_time_pid(-25, 0.25);
-	move_time_pid(25, 0.5);
-
-	// shimmy_time(0.5); //test
-	// pros::delay(2000); //test
-
-	// hold pressure
-	// move(0);
+	for (int i = 0; i < 4; i++){
+		move_time_pid_stop(-25, 0.25);
+		move_time_pid_stop(40, 0.26);
+		pros::delay(1000);
+	}
 
 	// intake delay
-	pros::delay(2500);
+	// pros::delay(1500);
 	move_intake(STOP, STOP, STOP);
 	
 	// Move to long goal
-	move_time_s(-40, 3.25, 2, 1);
+	move_time_pid_stop(-40, 3.25);
+	// move_time_pid_stop(-20, 0.8);
+	// pros::delay(10);
+	// turn_pid(92);
+	// pros::delay(10);
+	// turn_pid(90);
+	// pros::delay(10);
+	// move_time_pid_stop(-40, 3);
 	pros::delay(10);
-	unloader.toggle();
+	// unloader.toggle();
+	unloader.set_value(false);
 
 	// Unlodge Balls
 	move_intake(STOP, -HIGH_VOLTAGE, -HIGH_VOLTAGE);
 	pros::delay(500);
 	
 	// Score on long goal
-	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE);
+	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, 300);
 	pros::delay(3000);
 	move_intake(STOP, STOP, STOP);
 
 	// Move forward to align for park
-	move_time_s(40, 1, 1, 1);
+	move_time_s(40, 0.8, 1, 1);
 	turn_pid(0);
 
 	// Back towards parking zone
 	move_time_s(-50, 1.1, 0.5, 1);
 	turn_pid(90);
 
-	move_time_pid(40, 1.9);
+	move_time_pid_stop(40, 1.9);
 	turn_pid(-10);
 
-	// park
-	move_time_pid(-150, 0.65);
-	pros::delay(500);
 
-	// climb park
-	move_time_pid(40, 0.6); // 40 0.5
+	// park
+	move_time_pid(-40, 0.9);
+	move_time_pid_stop(-85, 1.5);
+
+	pros::delay(400);
+
+	move_time_pid_stop(30, 1.45);
+
+
+
+	// // working park
+	// move_time_pid_stop(-150, 0.65);
+	// pros::delay(500);
+
+	// // climb park
+	// move_time_pid_stop(40, 0.6); // 40 0.5
 
 }
 

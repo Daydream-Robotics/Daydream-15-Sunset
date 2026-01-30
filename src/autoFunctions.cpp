@@ -5,12 +5,12 @@
 #include "chrono"
 #include "odometry.h"
 
-void move(int leftVelocity, int rightVelocity, int turnVelocity) {
-    leftMotors.move_velocity(leftVelocity + turnVelocity);
-    rightMotors.move_velocity(rightVelocity - turnVelocity);
+void move(int leftVelocity, int rightVelocity) {
+    leftMotors.move_velocity(leftVelocity);
+    rightMotors.move_velocity(rightVelocity);
 }
 
-void forward_backward_move(int velocity,double seconds){
+void forward_backward_move(int velocity, double seconds){
     allMotors.move_velocity(5);
     pros::delay(500);
     allMotors.move_velocity(velocity);
@@ -31,7 +31,7 @@ void move_time(int leftVelocity, int rightVelocity, double seconds) {
 
 void move_time_pid(int speed, double seconds) {
     double heading;
-    double kp = 2;
+    double kp = 1;
     double original_heading = get_yaw_quaternion();
     double pid_res, error;
 
@@ -44,17 +44,21 @@ void move_time_pid(int speed, double seconds) {
 		else if (error < -180) error += 360;
 		if (error == 180) error = 179.99;
 
-        pid_res = (error * kp / 360);
+        pid_res = (error * kp);
+        pros::lcd::print(1, "error = %lf", error);
+        pros::lcd::print(2, "pid_res = %lf", pid_res);
         
-        move(speed + pid_res, speed - pid_res, seconds);
+        move(speed + pid_res, speed - pid_res);
         std::chrono::duration<double> elapsed = std::chrono::steady_clock::now() - start;
         if (elapsed.count() > seconds) {
             break;
         }
     }
+}
 
+void move_time_pid_stop(int speed, double seconds) {
+    move_time_pid(speed, seconds);
     move(0);
-    
 }
 
 
@@ -68,15 +72,17 @@ void move_time_s(int speed, double seconds, double ramp_duration, int ramp_stren
     auto start = std::chrono::steady_clock::now();
     
     // pros::lcd::print(1, "[Move_time] Enter Constant");
-    move(speed);    
+    // move(speed);    
+    double full_speed_duration = seconds - ramp_duration;
+    move_time_pid(speed, full_speed_duration);
 
-    std::chrono::duration<double> elapsed = std::chrono::steady_clock::now() - start;
-    double s_curve_end_time = seconds - ramp_duration;
-    while (elapsed.count() < s_curve_end_time) {
-        elapsed = std::chrono::steady_clock::now() - start;
-        move(speed);    
-        pros::delay(10);
-    }
+    // std::chrono::duration<double> elapsed = std::chrono::steady_clock::now() - start;
+    // double s_curve_end_time = seconds - ramp_duration;
+    // while (elapsed.count() < s_curve_end_time) {
+    //     elapsed = std::chrono::steady_clock::now() - start;
+    //     move(speed);    
+    //     pros::delay(10);
+    // }
     
     rampDown_s(speed, ramp_duration, ramp_strength);
     
@@ -143,18 +149,3 @@ void rampDown_s(int speed, double ramp_duration, int ramp_strength) {
     move(0);
     // pros::lcd::print(1, "[Move_time] Exit Function");
 }
-
-
-void shimmy_time(double seconds) {
-    auto start_time = std::chrono::steady_clock::now();
-    while (true) {
-        auto elapsed_time = std::chrono::steady_clock::now() - start_time;
-        if (elapsed_time.count() > seconds) {
-            break;
-        }
-
-        move_time_pid(-25, 0.25);
-        move_time_pid(25, 0.3);
-    }
-}
-
