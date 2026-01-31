@@ -24,7 +24,7 @@ void autonomous() {
 
 	// move between long goal and loader
 	// move_time_s(80, 2.2, 2, 1);
-	move_time_s(40, 3.45, 2 ,1); // 3.5 seconds
+	move_time_s(40, 3.55, 2 ,1); // 3.5 seconds
 
 	unloader.set_value(true);
 	turn_pid(90);
@@ -70,7 +70,7 @@ void autonomous() {
 	pros::delay(500);
 	
 	// Score on long goal
-	move_intake(MAX_VOLTAGE, MAX_VOLTAGE, 300);
+	move_intake(MAX_VOLTAGE, 400, 400);
 	pros::delay(3000);
 	move_intake(STOP, STOP, STOP);
 
