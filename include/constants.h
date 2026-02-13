@@ -33,9 +33,9 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 0.027; // 10
-constexpr double TURN_KI = 0.00; // 0.15
-constexpr double TURN_KD = 0.00; // 0.25
+constexpr double TURN_KP = 0.027; // 10 (?)
+constexpr double TURN_KI = 0.00; // 0.15 (?)
+constexpr double TURN_KD = 0.00; // 0.25 (?)
 
 
 
@@ -44,6 +44,10 @@ constexpr double MOVE_KI = 0.0;
 constexpr double MOVE_KD = 0.5;
 
 constexpr double STRAIGHTENING_KP = 0.0;
+
+constexpr double MOVE_HEADING_KP = 2.25;
+constexpr double MOVE_HEADING_KI = 0.0;
+constexpr double MOVE_HEADING_KD = 0.0;
 
 /* - - - - - - - - - - - - - - [GENERAL] - - - - - - - - - - - - - - */
 
@@ -55,10 +59,14 @@ constexpr int STOP = 0;
 
 /* - - - - - - - - - - - - - - [ODOMETRY] - - - - - - - - - - - - - - */
 
-constexpr double WHEEL_DIAMETER = 3.25; // inches
+constexpr double PERPINDICULAR_TRACKING_WHEEL_DISTANCE = 1.00;
 
-// Distance per degree: (PI * Diameter) / 360
-constexpr double CONVERSION_FACTOR = WHEEL_DIAMETER * M_PI / 360.0; // converting degrees to inches
+constexpr double PARALLEL_TRACKING_WHEEL_DIAMETER = 2.00;
+constexpr double PERPENDICULAR_TRACKING_WHEEL_DIAMETER = 2.00;
+
+
+
+/* - - - - - - - - - - - - - [MISCELLANEOUS] - - - - - - - - - - - - - */
 
 // Defines the MAX change allowed per loop (e.g., max change of 5 power units every 10ms)
 const double SLEW_STEP = 1.0; 

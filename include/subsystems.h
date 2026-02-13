@@ -6,6 +6,9 @@ extern pros::MotorGroup leftMotors;
 extern pros::MotorGroup rightMotors;
 extern pros::MotorGroup allMotors;
 
+extern pros::Rotation parallelTrackingWheel;
+extern pros::Rotation perpendicularTrackingWheel;
+
 extern pros::Motor lowIntake;
 extern pros::Motor midIntake;
 extern pros::Motor highIntake;
