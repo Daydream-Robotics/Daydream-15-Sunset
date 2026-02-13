@@ -59,10 +59,10 @@ constexpr int STOP = 0;
 
 /* - - - - - - - - - - - - - - [ODOMETRY] - - - - - - - - - - - - - - */
 
-constexpr double PERPINDICULAR_TRACKING_WHEEL_DISTANCE = 1.00;
+constexpr double PERPINDICULAR_TRACKING_WHEEL_DISTANCE = 0.7559055; // 19.2 mm
 
-constexpr double PARALLEL_TRACKING_WHEEL_DIAMETER = 2.00;
-constexpr double PERPENDICULAR_TRACKING_WHEEL_DIAMETER = 2.00;
+constexpr double PARALLEL_TRACKING_WHEEL_DIAMETER = 1.9728346; // 50.11 mm
+constexpr double PERPENDICULAR_TRACKING_WHEEL_DIAMETER = 1.9728346; // 50.11 mm
 
 
 
