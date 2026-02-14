@@ -44,7 +44,7 @@ namespace {
 		double smooth = x * x * (3.0 - 2.0 * x);
 	
 		// Return speed scaling
-		return std::clamp(smooth, 0.2, 1.0);
+		return std::clamp(smooth, 0.0, 1.0);
 	}
 	
 	// Limit acceleration takeoff
@@ -88,9 +88,9 @@ namespace {
 
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
-	: distancePID(0.1, 0.0, 0.0, 0.0), 
+	: distancePID(2.0, 0.0, 0.0, 0.0), 
 	headingPID(1.5, 0.0, 0.0, 0.0),
-	turnPID(0.95, 0.00, 0.00, 180.0) {
+	turnPID(0.84, 0.00, 0.001, 180.0) {
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 	}
@@ -164,6 +164,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 	distancePID.setTarget(distance);
 	headingPID.setTarget(targetHeading);
 
+
 	// TODO: Tune Exit Conditions
 	distancePID.exit_condition_set(
 		0.5, 200,	// small error (in), (ms)
@@ -233,6 +234,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 
 		if (rawHeading < 0) {
 			pros::lcd::print(0, "IMU Failure!");
+            leftMotors.move_velocity(0);
+            rightMotors.move_velocity(0);
 			// TODO: Add more verbose error handling
 			return;
 		}
@@ -240,6 +243,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		// Determine PID correction using smoothed heading
 		double filteredHeading = headingFilter.update(rawHeading - 180);
 		double correction = headingPID.compute(filteredHeading);
+
+        distancePID.compute(std::fabs(traveled));
 
 		// Takeoff ramping
 		double motionTime = std::chrono::duration<double>(now - startTime).count();
@@ -250,6 +255,9 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		double leftVel  = forward + correction;
         double rightVel = forward - correction;
 
+        pros::lcd::print(1, "LeftVel %lf", leftVel);
+        pros::lcd::print(2, "RightVel %lf", rightVel);
+
         leftMotors.move_velocity(leftVel);
         rightMotors.move_velocity(rightVel);
 
@@ -258,8 +266,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		if (distancePID.exit_condition(100) != PID::RUNNING) // TODO: get linear velocity
             break;
 
-        if (headingPID.exit_condition(100) != PID::RUNNING) // TODO: get angular velocity
-            break;
+        // if (headingPID.exit_condition(100) != PID::RUNNING) // TODO: get angular velocity
+        //     break;
 
 		pros::delay(10);
 
@@ -268,7 +276,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 	leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
     pros::delay(250);
-
+    pros::lcd::print(5, "END");
 
 }
 

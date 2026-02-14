@@ -22,17 +22,17 @@ void competition_initialize() {}
 void autonomous() {
 	Autonomous auton = Autonomous();
 	
-	// turn_pid(90);
-	auton.turnTo(90);
-	controller.rumble("--");
-	pros::delay(10);
 	
-	auton.turnTo(-90);
-	// turn_pid(-90);
+	// auton.turnTo(90);
+	auton.travel(24.0, 50, 0, 100);
+	pros::delay(100);
 	controller.rumble("--");
-	pros::delay(10);
-	auton.turnTo(0);
-	// turn_pid(0);
+	// auton.turnTo(-90);
+
+	controller.rumble("--");
+	pros::delay(100);
+	// auton.turnTo(0);
+
 	controller.rumble("--");
 	
 	
