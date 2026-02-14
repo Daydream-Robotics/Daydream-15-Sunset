@@ -3,10 +3,12 @@
 #include "constants.h"
 #include "autoFunctions.h"
 #include "odometry.h"
+#include "autonomous.hpp"
+#include "pid.hpp"
 
 void initialize() {
 	pros::lcd::initialize();
-	imuUpper.reset();
+	imu.reset();
 	// imuLower.reset();
 
 	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
@@ -18,8 +20,27 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
+	Autonomous auton = Autonomous();
+	
+	// turn_pid(90);
+	auton.turnTo(90);
+	controller.rumble("--");
+	pros::delay(10);
+	
+	auton.turnTo(-90);
+	// turn_pid(-90);
+	controller.rumble("--");
+	pros::delay(10);
+	auton.turnTo(0);
+	// turn_pid(0);
+	controller.rumble("--");
+	
+	
 
-	centerScore.set_value(true);
+
+
+// ----------OLD AUTON CODE ----------//
+	/*centerScore.set_value(true);
 	descorer.set_value(true);
 
 	// move between long goal and loader
@@ -101,7 +122,7 @@ void autonomous() {
 	// pros::delay(500);
 
 	// // climb park
-	// move_time_pid_stop(40, 0.6); // 40 0.5
+	// move_time_pid_stop(40, 0.6); // 40 0.5*/
 
 }
 

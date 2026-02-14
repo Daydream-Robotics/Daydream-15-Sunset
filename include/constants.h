@@ -33,9 +33,9 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 0.027; // 10 (?)
-constexpr double TURN_KI = 0.00; // 0.15 (?)
-constexpr double TURN_KD = 0.00; // 0.25 (?)
+constexpr double TURN_KP = 0.935; // 0.895 - 0.910
+constexpr double TURN_KI = 0.00; // 0.5
+constexpr double TURN_KD = 0.4525; // 0.0
 
 
 

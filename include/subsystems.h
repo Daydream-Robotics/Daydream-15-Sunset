@@ -13,7 +13,7 @@ extern pros::Motor lowIntake;
 extern pros::Motor midIntake;
 extern pros::Motor highIntake;
 
-extern pros::IMU imuUpper;
+extern pros::IMU imu;
 
 extern pros::adi::Pneumatics unloader;
 extern pros::adi::Pneumatics centerScore;
