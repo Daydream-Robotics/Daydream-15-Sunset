@@ -23,17 +23,33 @@ void autonomous() {
 	Autonomous auton = Autonomous();
 	
 	
-	// auton.turnTo(90);
-	auton.travel(24.0, 50, 0, 100);
-	pros::delay(100);
-	controller.rumble("--");
-	// auton.turnTo(-90);
+	auton.turnTo(90);
 
-	controller.rumble("--");
-	pros::delay(100);
-	// auton.turnTo(0);
+	auton.turnTo(180);
 
-	controller.rumble("--");
+	auton.turnTo(270);
+
+	auton.turnTo(360);	
+
+	
+	auton.turnTo(270);
+
+	auton.turnTo(180);
+
+	auton.turnTo(90);
+
+	auton.turnTo(0);
+
+
+	auton.turnTo(180);
+
+	auton.turnTo(360);
+
+	
+	pros::delay(100);
+	controller.rumble("..");
+	
+	
 	
 	
 
@@ -138,58 +154,58 @@ void opcontrol() {
 
 	
 
-	bool centerScoreToggle = false;
+// 	bool centerScoreToggle = false;
 
-	while(true) {
+// 	while(true) {
 
-		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
 
-		drive(DriveType::TANK);
+// 		drive(DriveType::TANK);
 
-		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
 
-		if (controller.get_digital_new_press(DIGITAL_L1)) {
-			unloader.toggle();
-		}
+// 		if (controller.get_digital_new_press(DIGITAL_L1)) {
+// 			unloader.toggle();
+// 		}
 
-		/* - - - - - - - - - - - - - - [CENTER TOGGLE] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [CENTER TOGGLE] - - - - - - - - - - - - - - */
 
-		if (controller.get_digital_new_press(DIGITAL_L2)) {
-			centerScore.toggle();
-			centerScoreToggle = !centerScoreToggle;
-		}
+// 		if (controller.get_digital_new_press(DIGITAL_L2)) {
+// 			centerScore.toggle();
+// 			centerScoreToggle = !centerScoreToggle;
+// 		}
 
-		/* - - - - - - - - - - - - - - [DESCORE TOGGLE] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [DESCORE TOGGLE] - - - - - - - - - - - - - - */
 
-		if (controller.get_digital_new_press(DIGITAL_X)) {
-			descorer.toggle();
-		}
+// 		if (controller.get_digital_new_press(DIGITAL_X)) {
+// 			descorer.toggle();
+// 		}
 
-		if (controller.get_digital_new_press(DIGITAL_A)) {
-			centerScore.set_value(true);
-		}
+// 		if (controller.get_digital_new_press(DIGITAL_A)) {
+// 			centerScore.set_value(true);
+// 		}
 
-		if (controller.get_digital_new_press(DIGITAL_B)) {
-			centerScore.set_value(false);
-		}
+// 		if (controller.get_digital_new_press(DIGITAL_B)) {
+// 			centerScore.set_value(false);
+// 		}
 
-		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
+// 		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
 
-		if (centerScoreToggle) {
-			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE); // scoring center high (L2)
-		} else if (controller.get_digital(DIGITAL_R1)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); // intaking, top wheels reversed
-		} else if (controller.get_digital(DIGITAL_R2)) {
-			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // scoring long goals
-		} else if (controller.get_digital(DIGITAL_A)) {
-			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, HIGH_VOLTAGE); // outtaking / scoring center low
-		} else {
-			move_intake(STOP);
-		}
+// 		if (centerScoreToggle) {
+// 			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE); // scoring center high (L2)
+// 		} else if (controller.get_digital(DIGITAL_R1)) {
+// 			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); // intaking, top wheels reversed
+// 		} else if (controller.get_digital(DIGITAL_R2)) {
+// 			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // scoring long goals
+// 		} else if (controller.get_digital(DIGITAL_A)) {
+// 			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, HIGH_VOLTAGE); // outtaking / scoring center low
+// 		} else {
+// 			move_intake(STOP);
+// 		}
 
-		// Delay added to prevent crashing
-		pros::delay(20);
-	}
+// 		// Delay added to prevent crashing
+// 		pros::delay(20);
+// 	}
 }
 
 void move_intake(int low, int mid, int high, double seconds) {
