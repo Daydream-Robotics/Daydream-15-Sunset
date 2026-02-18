@@ -89,7 +89,7 @@ namespace {
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
 	: distancePID(5.0, 0.0, 0.0, 0.0), 
-	headingPID(0.004, 0.0, 0.0, 0.0),
+	headingPID(0, 0.0, 0.0, 0.0),
 	turnPID(1.22, 0.00, 0.063875, 180.0) { //1.22, 0.00, 0.063875, 180.0
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
