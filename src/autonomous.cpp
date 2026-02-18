@@ -160,124 +160,83 @@ void Autonomous::turnTo(double targetHeading) {
 }
 
 void Autonomous::travel(double distance, double speed, double targetHeading, double timer_s) {
-	// Set PID targets
-	distancePID.setTarget(distance);
-	headingPID.setTarget(targetHeading);
 
-
-	// TODO: Tune Exit Conditions
-	distancePID.exit_condition_set(
-		0.5, 200,	// small error (in), (ms)
-		2.0, 400,	// big error (in),(ms)
-		200,		// velocity settling time (ms)
-		timer_s * 1000 // timeout (ms)
-	);
-
-	// TODO: Tune Exit Conditions
-	headingPID.exit_condition_set(
-        1.0, 150,   // small error (deg), (ms)
-        3.0, 300,	// big error (deg), (ms)
-        200,		// velocity error (deg), (ms)
-        timer_s * 1000
-    );
-
-	// TODO: Tune alpha [0, 1] [more smooth, less smooth]
-	HeadingFilter headingFilter(0.35);
-
-	Position start(pos_x, pos_y);
-
-	double prevForward = 0.0;
-
-	using clock = std::chrono::steady_clock;
-	auto startTime = clock::now();
-	auto lastTime = startTime;
-
-	// Find heading and direction
-	double headingRad = convertDegToRad(targetHeading);
-    double direction = (distance >= 0.0) ? 1.0 : -1.0;
-
-    Position headingUnit {
-        direction * -std::cos(headingRad),
-        direction * -std::sin(headingRad)
+    auto clamp = [](double v, double lo, double hi) {
+        return (v < lo) ? lo : (v > hi) ? hi : v;
     };
 
-	while (true) {
-		// Find time step value
-		auto now = clock::now();
-		double dt = std::chrono::duration<double>(now - lastTime).count();
-		if (dt <= 0.0) dt = 1e-3;
-		lastTime = now;
+    auto normalizeDeg = [](double a) {
+        while (a >= 180.0) a -= 360.0;
+        while (a < -180.0) a += 360.0;
+        return a;
+    };
 
-		// Update current position and orientation
-		updatePose();
+    distancePID.setTarget(distance);
+    distancePID.exit_condition_set(
+        0.5, 200,        // small error (in), (ms)
+        2.0, 400,        // big error (in), (ms)
+        200,             // velocity settling time (ms)
+        timer_s * 1000   // timeout (ms)
+    );
 
-		// Find distance traveled
-		Position delta { pos_x - start.x, pos_y - start.y };
-		double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
-		double remaining = std::fabs(distance) - std::fabs(traveled);
+    headingPID.setTarget(0.0);
 
-		// Hard STOP
-		if (remaining < STOPTHRESHOLD) {
-			break;
-		}
+    Position start(pos_x, pos_y);
+    double direction = (distance >= 0.0) ? 1.0 : -1.0;
 
-		// Compute max target speed
-		double speedScale = computeDecelScale(remaining, distance);
-		double targetForward = speed * direction * speedScale;
+	double headingRad = convertDegToRad(targetHeading);
+	Position headingUnit {
+		std::sin(headingRad),
+		-std::cos(headingRad)
+	};
 
-		// Smooth forward momentum
-		double forward = accelLimit(prevForward, targetForward, dt, accelLimitRate);
-		prevForward = forward;
+    while (true) {
+        updatePose();
 
-		// Heading calculation
-		double rawHeading = getYaw();
+        // Compute traveled distance along heading vector
+        Position delta { pos_x - start.x, pos_y - start.y };
+        double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
 
-		if (rawHeading < 0) {
-			pros::lcd::print(0, "IMU Failure!");
-            leftMotors.move_velocity(0);
-            rightMotors.move_velocity(0);
-			// TODO: Add more verbose error handling
-			return;
-		}
+        double v = distancePID.compute(traveled);
+        v = clamp(v, -speed, speed);
 
-		// Determine PID correction using smoothed heading
-		double filteredHeading = headingFilter.update(rawHeading - 180);
-		double correction = headingPID.compute(filteredHeading);
+        // Heading error
+        double rawHeading = getYaw();
+        if (rawHeading < 0) {
+            pros::lcd::print(0, "IMU Failure!");
+            return;
+        }
 
-        distancePID.compute(std::fabs(traveled));
+        double headingError = normalizeDeg(targetHeading - rawHeading);
 
-		// Takeoff ramping
-		double motionTime = std::chrono::duration<double>(now - startTime).count();
-        double ramp = std::min(1.0, motionTime / takeoffRampTime);
-        correction *= ramp;
+        // Heading correction
+        double omega = headingPID.compute(headingError);
 
-		// Compute motor velocities
-		double leftVel  = forward + correction;
-        double rightVel = forward - correction;
+        // Differential drive
+        double left  = v + omega;
+        double right = v - omega;
 
-        pros::lcd::print(1, "LeftVel %lf", leftVel);
-        pros::lcd::print(2, "RightVel %lf", rightVel);
+        // Magnitude Scaling
+        double maxMag = std::max(std::fabs(left), std::fabs(right));
+        if (maxMag > speed) {
+            double scale = speed / maxMag;
+            left  *= scale;
+            right *= scale;
+        }
 
-        leftMotors.move_velocity(leftVel);
-        rightMotors.move_velocity(rightVel);
+        leftMotors.move_velocity(left);
+        rightMotors.move_velocity(right);
 
-
-		// Break if PID exit condition is met
-		if (distancePID.exit_condition(100) != PID::RUNNING) // TODO: get linear velocity
+		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
+        if (distancePID.exit_condition(100) != PID::RUNNING)
             break;
 
-        // if (headingPID.exit_condition(100) != PID::RUNNING) // TODO: get angular velocity
-        //     break;
+        pros::delay(10);
+    }
 
-		pros::delay(10);
-
-	}
-
-	leftMotors.move_velocity(0);
+    leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
     pros::delay(250);
-    pros::lcd::print(5, "END");
-
 }
 
 void Autonomous::updatePose(void) {
