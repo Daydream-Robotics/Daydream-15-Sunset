@@ -89,7 +89,7 @@ namespace {
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
 	: distancePID(5.0, 0.0, 0.0, 0.0), 
-	headingPID(, 0.0, 0.0, 0.0),
+	headingPID(0, 0.0, 0.0, 0.0),
 	turnPID(1.22, 0.00, 0.063875, 180.0) { //1.22, 0.00, 0.063875, 180.0
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -164,7 +164,6 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
     auto clamp = [](double v, double lo, double hi) {
         return (v < lo) ? lo : (v > hi) ? hi : v;
     };
-<<<<<<< HEAD
 
     auto normalizeDeg = [](double a) {
         while (a >= 180.0) a -= 360.0;
@@ -234,73 +233,6 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
         if (distancePID.exit_condition(100) != PID::RUNNING){
 			pros::lcd::print(0,0,"Exit Condition Meet");
-=======
-
-    auto normalizeDeg = [](double a) {
-        while (a >= 180.0) a -= 360.0;
-        while (a < -180.0) a += 360.0;
-        return a;
-    };
-
-    distancePID.setTarget(distance);
-    distancePID.exit_condition_set(
-        0.5, 200,        // small error (in), (ms)
-        2.0, 400,        // big error (in), (ms)
-        200,             // velocity settling time (ms)
-        timer_s * 1000   // timeout (ms)
-    );
-
-    headingPID.setTarget(0.0);
-
-    Position start(pos_x, pos_y);
-    double direction = (distance >= 0.0) ? 1.0 : -1.0;
-
-	double headingRad = convertDegToRad(targetHeading);
-	Position headingUnit {
-		std::sin(headingRad),
-		-std::cos(headingRad)
-	};
-
-    while (true) {
-        updatePose();
-
-        // Compute traveled distance along heading vector
-        Position delta { pos_x - start.x, pos_y - start.y };
-        double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
-
-        double v = distancePID.compute(traveled);
-        v = clamp(v, -speed, speed);
-
-        // Heading error
-        double rawHeading = getYaw();
-        if (rawHeading < 0) {
-            pros::lcd::print(0, "IMU Failure!");
-            return;
-        }
-
-        double headingError = normalizeDeg(targetHeading - rawHeading);
-
-        // Heading correction
-        double omega = headingPID.compute(headingError);
-
-        // Differential drive
-        double left  = v + omega;
-        double right = v - omega;
-
-        // Magnitude Scaling
-        double maxMag = std::max(std::fabs(left), std::fabs(right));
-        if (maxMag > speed) {
-            double scale = speed / maxMag;
-            left  *= scale;
-            right *= scale;
-        }
-
-        leftMotors.move_velocity(left);
-        rightMotors.move_velocity(right);
-
-		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
-        if (distancePID.exit_condition(100) != PID::RUNNING)
->>>>>>> 984ff97162b54fba3a3cc05a49ddc8dddc2ba3e6
             break;
 		}
 		  controller.print(0,0, "%.2f", rawHeading);
@@ -308,12 +240,6 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
         pros::delay(10);
     }
 
-<<<<<<< HEAD
-=======
-        pros::delay(10);
-    }
-
->>>>>>> 984ff97162b54fba3a3cc05a49ddc8dddc2ba3e6
     leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
     pros::delay(250);
