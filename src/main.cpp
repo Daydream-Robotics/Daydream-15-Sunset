@@ -21,29 +21,31 @@ void competition_initialize() {}
 
 void autonomous() {
 	Autonomous auton = Autonomous();
+	// allMotors.move_velocity(30);
+	pros::delay(1000);
 	
+	auton.travel(24, 200, 270, -1);
+	// auton.turnTo(90);
+
+	// auton.turnTo(180);
+
+	// auton.turnTo(270);
+
+	// auton.turnTo(360);	
+
 	
-	auton.turnTo(90);
+	// auton.turnTo(270);
 
-	auton.turnTo(180);
+	// auton.turnTo(180);
 
-	auton.turnTo(270);
+	// auton.turnTo(90);
 
-	auton.turnTo(360);	
-
-	
-	auton.turnTo(270);
-
-	auton.turnTo(180);
-
-	auton.turnTo(90);
-
-	auton.turnTo(0);
+	// auton.turnTo(0);
 
 
-	auton.turnTo(180);
+	// auton.turnTo(180);
 
-	auton.turnTo(360);
+	// auton.turnTo(360);
 
 	
 	pros::delay(100);

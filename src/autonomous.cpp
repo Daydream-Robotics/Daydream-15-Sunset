@@ -88,9 +88,9 @@ namespace {
 
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
-	: distancePID(2.0, 0.0, 0.0, 0.0), 
-	headingPID(1.5, 0.0, 0.0, 0.0),
-	turnPID(1.22, 0.001, 0.063875, 180.0) { //1.22, 0.00, 0.063875, 180.0
+	: distancePID(5.0, 0.0, 0.0, 0.0), 
+	headingPID(, 0.0, 0.0, 0.0),
+	turnPID(1.22, 0.00, 0.063875, 180.0) { //1.22, 0.00, 0.063875, 180.0
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 	}
@@ -129,7 +129,7 @@ void Autonomous::turnTo(double targetHeading) {
 
 		// Determine PID correction using smoothed heading
 		double filteredHeading = headingFilter.update(rawHeading - 180);
-		double correction = turnPID.compute(filteredHeading, true);
+		double correction = turnPID.compute(filteredHeading,true);
 		//pros::lcd::print(1, "Correction: %lf", correction);
 
 		// Compute turnSpeed based on correction
@@ -154,131 +154,97 @@ void Autonomous::turnTo(double targetHeading) {
 
 	leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
-    pros::delay(250);
+    pros::delay(100);
 
 	updatePose();
 }
 
 void Autonomous::travel(double distance, double speed, double targetHeading, double timer_s) {
-	// Set PID targets
-	distancePID.setTarget(distance);
-	headingPID.setTarget(targetHeading);
 
+    auto clamp = [](double v, double lo, double hi) {
+        return (v < lo) ? lo : (v > hi) ? hi : v;
+    };
 
-	// TODO: Tune Exit Conditions
-	distancePID.exit_condition_set(
-		0.5, 200,	// small error (in), (ms)
-		2.0, 400,	// big error (in),(ms)
-		200,		// velocity settling time (ms)
-		timer_s * 1000 // timeout (ms)
-	);
-
-	// TODO: Tune Exit Conditions
-	headingPID.exit_condition_set(
-        1.0, 150,   // small error (deg), (ms)
-        3.0, 300,	// big error (deg), (ms)
-        200,		// velocity error (deg), (ms)
+    auto normalizeDeg = [](double a) {
+        while (a >= 180.0) a -= 360.0;
+        while (a < -180.0) a += 360.0;
+        return a;
+    };
+	// int count = 0;
+    distancePID.setTarget(distance);
+    distancePID.exit_condition_set(
+        0.5, 50,
+        2.0, 400,
+        200,
         timer_s * 1000
     );
 
-	// TODO: Tune alpha [0, 1] [more smooth, less smooth]
-	HeadingFilter headingFilter(0.35);
+    headingPID.setTarget(0.0);
 
-	Position start(pos_x, pos_y);
-
-	double prevForward = 0.0;
-
-	using clock = std::chrono::steady_clock;
-	auto startTime = clock::now();
-	auto lastTime = startTime;
-
-	// Find heading and direction
-	double headingRad = convertDegToRad(targetHeading);
+    Position start(pos_x, pos_y);
     double direction = (distance >= 0.0) ? 1.0 : -1.0;
 
-    Position headingUnit {
-        direction * -std::cos(headingRad),
-        direction * -std::sin(headingRad)
-    };
+	double headingRad = convertDegToRad(targetHeading);
+	Position headingUnit {
+		-std::cos(headingRad),
+		-std::sin(headingRad)
+	};
 
-	while (true) {
-		// Find time step value
-		auto now = clock::now();
-		double dt = std::chrono::duration<double>(now - lastTime).count();
-		if (dt <= 0.0) dt = 1e-3;
-		lastTime = now;
-
-		// Update current position and orientation
-		updatePose();
-
-		// Find distance traveled
-		Position delta { pos_x - start.x, pos_y - start.y };
-		double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
-		double remaining = std::fabs(distance) - std::fabs(traveled);
-
-		// Hard STOP
-		if (remaining < STOPTHRESHOLD) {
-			break;
-		}
-
-		// Compute max target speed
-		double speedScale = computeDecelScale(remaining, distance);
-		double targetForward = speed * direction * speedScale;
-
-		// Smooth forward momentum
-		double forward = accelLimit(prevForward, targetForward, dt, accelLimitRate);
-		prevForward = forward;
-
-		// Heading calculation
-		double rawHeading = getYaw();
-
-		if (rawHeading < 0) {
-			pros::lcd::print(0, "IMU Failure!");
-            leftMotors.move_velocity(0);
-            rightMotors.move_velocity(0);
-			// TODO: Add more verbose error handling
-			return;
-		}
-
-		// Determine PID correction using smoothed heading
-		double filteredHeading = headingFilter.update(rawHeading - 180);
-		double correction = headingPID.compute(filteredHeading);
-
-        distancePID.compute(std::fabs(traveled));
-
-		// Takeoff ramping
-		double motionTime = std::chrono::duration<double>(now - startTime).count();
-        double ramp = std::min(1.0, motionTime / takeoffRampTime);
-        correction *= ramp;
-
-		// Compute motor velocities
-		double leftVel  = forward + correction;
-        double rightVel = forward - correction;
-
-        pros::lcd::print(1, "LeftVel %lf", leftVel);
-        pros::lcd::print(2, "RightVel %lf", rightVel);
-
-        leftMotors.move_velocity(leftVel);
-        rightMotors.move_velocity(rightVel);
+    while (true) {
+        updatePose();
+		
+		// controller.print(0,0, "%.2f, %.2f", pos_x, pos_y);
+        // Compute traveled distance along heading vector
+        Position delta { pos_x - start.x, pos_y - start.y };
+        double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
 
 
-		// Break if PID exit condition is met
-		if (distancePID.exit_condition(100) != PID::RUNNING) // TODO: get linear velocity
+        double v = distancePID.compute(-traveled);
+        v = clamp(v, -speed, speed);
+
+        // Heading error
+        double rawHeading = getYaw();
+        if (rawHeading < 0) {
+            pros::lcd::print(0, "IMU Failure!");
+            return;
+        }
+
+        double headingError = normalizeDeg(targetHeading - rawHeading);
+
+        // Heading correction
+        double omega = headingPID.compute(headingError);
+
+        // Differential drive
+		
+        double left  = v + omega;
+        double right = v - omega;
+
+        // Magnitude Scaling
+        double maxMag = std::max(std::fabs(left), std::fabs(right));
+        if (maxMag > speed) {
+            double scale = speed / maxMag;
+            left  *= scale;
+            right *= scale;
+        }
+
+        leftMotors.move_velocity(left);
+        rightMotors.move_velocity(right);
+
+		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
+        if (distancePID.exit_condition(100) != PID::RUNNING){
+			pros::lcd::print(0,0,"Exit Condition Meet");
             break;
+		}
+		  controller.print(0,0, "%.2f", rawHeading);
+		// count++;
+        pros::delay(10);
+    }
 
-        // if (headingPID.exit_condition(100) != PID::RUNNING) // TODO: get angular velocity
-        //     break;
-
-		pros::delay(10);
-
-	}
-
-	leftMotors.move_velocity(0);
+    leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
     pros::delay(250);
-    pros::lcd::print(5, "END");
-
 }
+
 
 void Autonomous::updatePose(void) {
 	// Calculate distance travelled by each tracking wheel
@@ -316,8 +282,8 @@ void Autonomous::updatePose(void) {
 	pos_y += del_y;
 
 	prevTheta = theta;
-
-	controller.print(0, 0, "O: %.2lf\n", convertRadToDeg(theta));
+	
+	//  controller.print(0, 0, "O: %.2lf\n", pos_x);
 }
 
 double Autonomous::getYaw(void) {
@@ -343,10 +309,14 @@ WheelLengths Autonomous::getOdomWheelTravel(void) {
     static double lastParallel = parallelTrackingWheel.get_position();
 	static double lastPerpendicular = perpendicularTrackingWheel.get_position();
 
-    // Get current centidegree position of tracking wheels
-	int currParallel = parallelTrackingWheel.get_position();
-	int currPerpendicular = perpendicularTrackingWheel.get_position();
 
+	// pros::delay(100);
+
+    // Get current centidegree position of tracking wheels
+	double currParallel = parallelTrackingWheel.get_position();
+	double currPerpendicular = perpendicularTrackingWheel.get_position();
+
+	// controller.print(0,0, "%d", currParallel);
     // Get delta between current and last frame
 	double dTicksL = currParallel - lastParallel; 
 	double dTicksS = currPerpendicular - lastPerpendicular;
@@ -359,9 +329,10 @@ WheelLengths Autonomous::getOdomWheelTravel(void) {
     // Save current position as previous
 	lastParallel = currParallel;
 	lastPerpendicular = currPerpendicular;
-
+	// controller.print(0, 0, "O: %.2f\n", delParallel);
 	// Create a structure of lengths
 	WheelLengths del(delParallel, delPerpendicular);
+	
 
 	return del;
 }
