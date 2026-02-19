@@ -88,8 +88,8 @@ namespace {
 
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
-	: distancePID(5.0, 0.0, 0.0, 0.0), 
-	headingPID(0, 0.0, 0.0, 0.0),
+	: distancePID(5.0, 2.0, 0.0, 1.0), 
+	headingPID(0.001, 0.0, 0.0, 0.0),
 	turnPID(1.22, 0.00, 0.063875, 180.0) { //1.22, 0.00, 0.063875, 180.0
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -173,8 +173,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 	// int count = 0;
     distancePID.setTarget(distance);
     distancePID.exit_condition_set(
-        0.5, 50,
-        2.0, 400,
+        0.1, 50,
+        2.0, 60000,
         200,
         timer_s * 1000
     );
@@ -186,8 +186,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 
 	double headingRad = convertDegToRad(targetHeading);
 	Position headingUnit {
-		-std::cos(headingRad),
-		-std::sin(headingRad)
+		std::cos(headingRad),
+		std::sin(headingRad)
 	};
 
     while (true) {
@@ -196,10 +196,15 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		// controller.print(0,0, "%.2f, %.2f", pos_x, pos_y);
         // Compute traveled distance along heading vector
         Position delta { pos_x - start.x, pos_y - start.y };
-        double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
+        // double traveled = delta.y * headingUnit.x + delta.x * headingUnit.y;
+		double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
+
+		// pros::lcd::print(1, "Delta: x: %.2f, y: %.2f", delta.x, delta.y);
+		// pros::lcd::print(2, "Heading Unit: x: %.2f, y: %.2f", headingUnit.x, headingUnit.y);
+		// pros::lcd::print(3, "Traveled: %.2f", traveled);
 
 
-        double v = distancePID.compute(-traveled);
+        double v = distancePID.compute(traveled);
         v = clamp(v, -speed, speed);
 
         // Heading error
