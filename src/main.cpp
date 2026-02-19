@@ -9,7 +9,6 @@
 void initialize() {
 	pros::lcd::initialize();
 	imu.reset();
-	// imuLower.reset();
 
 	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
 	rightMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
@@ -23,42 +22,29 @@ void autonomous() {
 	Autonomous auton = Autonomous();
 	pros::delay(100);
 
-	// go between long goal and unloader
+	// line up for botton right unloader
 	lowIntake.move_velocity(100);
 	auton.travel(34.5, 100, 0, -1);
 	lowIntake.move_velocity(0);
 
-
 	// turn towards unloader
 	unloader.set_value(true);
 	auton.turnTo(90);
-
+	
 	// go to unloader
-	// auton.travel(5, 50, 90, -1);
 	lowIntake.move_velocity(100);
 	midIntake.move_velocity(100);
 	highIntake.move_velocity(-50);
-	// auton.travel(20, 200, 90, 0.5);
-
-	unloader.set_value(true);
     auton.travel(16, 45, 90, 1.150);
     auton.travel(-12, 50, 90, 0.20);
     auton.travel(12, 100, 90, 0.20);
-	// auton.travel(-0.35, 50, 90, -1);
 
-	// unload for some time
-	// pros::delay(3000);
-
+	// hump loader
 	for (int i = 0; i <= 2; i++){
 		auton.travel(-12, 50, 90, 0.25);
 		auton.travel(12, 60, 90, 0.35);
 		pros::delay(1000);
 	}
-	
-	// // stop unloading
-	// lowIntake.move_velocity(0);
-	// midIntake.move_velocity(0);
-	// highIntake.move_velocity(0);
 	
 	// go to long goal
 	auton.travel(-35, 50, 90, 4);
@@ -80,7 +66,7 @@ void autonomous() {
 	auton.travel(30.2, 70, 0, 6);
 	move_intake(0, 0, 0);
 
-	// go to unloader
+	// line up with upper right unloader
 	auton.travel(-15, 50, 0, -1);
 	auton.turnTo(-90);
 
