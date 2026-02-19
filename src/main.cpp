@@ -1,10 +1,10 @@
 #include "main.h"
 #include "subsystems.h"
 #include "constants.h"
-#include "autoFunctions.h"
 #include "odometry.h"
 #include "autonomous.hpp"
 #include "pid.hpp"
+#include "intake.h"
 
 void initialize() {
 	pros::lcd::initialize();
@@ -21,31 +21,76 @@ void competition_initialize() {}
 
 void autonomous() {
 	Autonomous auton = Autonomous();
-	// allMotors.move_velocity(30);
-	pros::delay(1000);
+	pros::delay(100);
+
+	// go between long goal and unloader
+	lowIntake.move_velocity(100);
+	auton.travel(34.5, 100, 0, -1);
+	lowIntake.move_velocity(0);
+
+
+	// turn towards unloader
+	unloader.set_value(true);
+	auton.turnTo(90);
+
+	// go to unloader
+	// auton.travel(5, 50, 90, -1);
+	lowIntake.move_velocity(100);
+	midIntake.move_velocity(100);
+	highIntake.move_velocity(-50);
+	// auton.travel(20, 200, 90, 0.5);
+
+	unloader.set_value(true);
+    auton.travel(16, 45, 90, 1.150);
+    auton.travel(-12, 50, 90, 0.20);
+    auton.travel(12, 100, 90, 0.20);
+	// auton.travel(-0.35, 50, 90, -1);
+
+	// unload for some time
+	// pros::delay(3000);
+
+	for (int i = 0; i <= 2; i++){
+		auton.travel(-12, 50, 90, 0.25);
+		auton.travel(12, 60, 90, 0.35);
+		pros::delay(1000);
+	}
 	
-	auton.travel(24, 200, 270, -1);
-	// auton.turnTo(90);
-
-	// auton.turnTo(180);
-
-	// auton.turnTo(270);
-
-	// auton.turnTo(360);	
-
+	// // stop unloading
+	// lowIntake.move_velocity(0);
+	// midIntake.move_velocity(0);
+	// highIntake.move_velocity(0);
 	
-	// auton.turnTo(270);
+	// go to long goal
+	auton.travel(-35, 50, 90, 4);
+	// auton.turnTo(93);
+	// auton.travel(-20, 100, 95, 2);
+	unloadLongGoal();
 
-	// auton.turnTo(180);
+	// go to upper right balls
+	auton.travel(10, 50, 90, -1);
+	auton.turnTo(0);
+	auton.travel(-15, 50, 0, -1);
+	auton.turnTo(-90);
+	auton.travel(83, 70, -90, -1);
+	auton.turnTo(0);
+	unloader.set_value(false);
 
-	// auton.turnTo(90);
+	// get top right balls
+	move_intake(100, 100, -100);
+	auton.travel(30.2, 70, 0, 6);
+	move_intake(0, 0, 0);
 
-	// auton.turnTo(0);
+	// go to unloader
+	auton.travel(-15, 50, 0, -1);
+	auton.turnTo(-90);
 
 
-	// auton.turnTo(180);
 
-	// auton.turnTo(360);
+
+
+
+
+
 
 	
 	pros::delay(100);
