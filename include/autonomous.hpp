@@ -1,5 +1,6 @@
 // include/autonomous.hpp
 
+
 #pragma once
 
 #include "pid.hpp"
@@ -30,6 +31,8 @@ class Autonomous {
         // Update position and orientation
         void updatePose(void);
 
+        // Returns the current yaw (deg) from IMU; Returns -1 if IMU failure
+        double getYaw(void);
     private:
 
         // Distance PID controller
@@ -61,8 +64,6 @@ class Autonomous {
 
         
 
-        // Returns the current yaw (deg) from IMU; Returns -1 if IMU failure
-        double getYaw(void);
 
         // Returns struct of distances travelled by Odometry Wheels
         WheelLengths getOdomWheelTravel(void);
