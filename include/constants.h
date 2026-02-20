@@ -33,21 +33,26 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double TURN_KP = 0.935; // 0.895 - 0.910
-constexpr double TURN_KI = 0.00; // 0.5
-constexpr double TURN_KD = 0.4525; // 0.0
+constexpr double DISTANCE_KP = 5.0;
+constexpr double DISTANCE_KI = 2.0;
+constexpr double DISTANCE_KD = 0.0;
+constexpr double DISTANCE_KI_THRESHOLD = 1.0;
 
+constexpr double HEADING_KP = 0.004; // 0.002
+constexpr double HEADING_KI = 0.0;
+constexpr double HEADING_KD = 0.0;
+constexpr double HEADING_KI_THRESHOLD = 2;
 
+constexpr double TURN_KP = 1.22;
+constexpr double TURN_KI = 0.009; // hi 0.01
+constexpr double TURN_KD = 0.063875;
+constexpr double TURN_KI_THRESHOLD = 2;
 
-constexpr double MOVE_KP = 1.0;
-constexpr double MOVE_KI = 0.0;
-constexpr double MOVE_KD = 0.5;
+// constexpr double STRAIGHTENING_KP = 0.0;
 
-constexpr double STRAIGHTENING_KP = 0.0;
-
-constexpr double MOVE_HEADING_KP = 2.25;
-constexpr double MOVE_HEADING_KI = 0.0;
-constexpr double MOVE_HEADING_KD = 0.0;
+// constexpr double MOVE_HEADING_KP = 2.25;
+// constexpr double MOVE_HEADING_KI = 0.0;
+// constexpr double MOVE_HEADING_KD = 0.0;
 
 /* - - - - - - - - - - - - - - [GENERAL] - - - - - - - - - - - - - - */
 

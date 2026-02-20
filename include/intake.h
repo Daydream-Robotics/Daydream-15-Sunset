@@ -1,8 +1,9 @@
-
 #ifndef INTAKE_H
 #define INTAKE_H
 
-void loadFromLoader();
-void unloadLongGoal();
+#include "autonomous.hpp"
+
+void loadFromLoader(Autonomous auton);
+void unloadLongGoal(Autonomous auton);
 
 #endif

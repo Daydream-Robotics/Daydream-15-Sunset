@@ -23,8 +23,10 @@ void autonomous() {
 	pros::delay(100);
 
 	// line up for botton right unloader
+	centerScore.set_value(true);
 	lowIntake.move_velocity(100);
 	auton.travel(34.5, 100, 0, -1);
+	centerScore.set_value(false);
 	lowIntake.move_velocity(0);
 
 	// turn towards unloader
@@ -33,24 +35,19 @@ void autonomous() {
 	
 	// go to unloader
 	lowIntake.move_velocity(100);
-	midIntake.move_velocity(100);
+	midIntake.move_velocity(30);
 	highIntake.move_velocity(-50);
     auton.travel(16, 45, 90, 1.150);
-    auton.travel(-12, 50, 90, 0.20);
-    auton.travel(12, 100, 90, 0.20);
+
 
 	// hump loader
-	for (int i = 0; i <= 2; i++){
-		auton.travel(-12, 50, 90, 0.25);
-		auton.travel(12, 60, 90, 0.35);
-		pros::delay(1000);
-	}
-	
+	loadFromLoader(auton);
+	// pros::delay(2000);
 	// go to long goal
-	auton.travel(-35, 50, 90, 4);
+	auton.travel(-35, 50, 90, 3.25);
 	// auton.turnTo(93);
 	// auton.travel(-20, 100, 95, 2);
-	unloadLongGoal();
+	unloadLongGoal(auton);
 
 	// go to upper right balls
 	auton.travel(10, 50, 90, -1);
@@ -63,13 +60,32 @@ void autonomous() {
 
 	// get top right balls
 	move_intake(100, 100, -100);
-	auton.travel(30.2, 70, 0, 6);
+	auton.travel(38, 70, 0, 2);
+	auton.travel(-2, 100, 0, 1);
+	auton.travel(4, 100, 0, 1);
 	move_intake(0, 0, 0);
-
+	
+	pros::delay(100);
 	// line up with upper right unloader
-	auton.travel(-15, 50, 0, -1);
+	auton.travel(-15, 50, 0, -1);//lo hi 17
+	unloader.set_value(true);
 	auton.turnTo(-90);
 
+	//travel to unloader
+	lowIntake.move_velocity(100);
+	midIntake.move_velocity(100);
+	highIntake.move_velocity(-50);
+	auton.travel(12, 100, -90, 2);
+
+	//hump unloader
+	loadFromLoader(auton);
+
+	// go to long goal
+	auton.travel(-35, 50, 200, 3.25);
+
+	unloadLongGoal(auton);
+
+	auton.travel(10, 50, 90, 4);
 
 
 

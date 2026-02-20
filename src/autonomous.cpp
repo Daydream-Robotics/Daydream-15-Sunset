@@ -1,5 +1,6 @@
 #include "autonomous.hpp"
 #include "subsystems.h"
+#include "constants.h"
 
 // ====== Helper functions ======
 namespace {
@@ -88,9 +89,9 @@ namespace {
 
 // TODO: Tune PID parameters
 Autonomous::Autonomous() 
-	: distancePID(5.0, 2.0, 0.0, 1.0), 
-	headingPID(0.002, 0.0, 0.0, 0.0),
-	turnPID(1.22, 0.001, 0.063875, 2.0) { //1.22, 0.00, 0.063875, 180.0
+	: distancePID(DISTANCE_KP, DISTANCE_KI, DISTANCE_KD, DISTANCE_KI_THRESHOLD),  // 5.0, 2.0, 0.0, 1.0
+	headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_KI_THRESHOLD), // 0.002, 0.0, 0.0, 0.0
+	turnPID(TURN_KP, TURN_KI, TURN_KD, TURN_KI_THRESHOLD) { // 1.22, 0.000, 0.063875, 180
 		leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 		rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 	}
@@ -135,8 +136,8 @@ void Autonomous::turnTo(double targetHeading) {
 		// Compute turnSpeed based on correction
 		double turnSpeed = std::clamp(
             std::fabs(correction),
-            2.0,
-            70.0
+            1.0, // 2
+            100.0 // 70
         );
 
         turnSpeed = std::copysign(turnSpeed, correction);
