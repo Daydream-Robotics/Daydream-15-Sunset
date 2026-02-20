@@ -190,6 +190,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 		std::sin(headingRad)
 	};
 
+    double prevV = 0.0;
+
     while (true) {
         updatePose();
 		
@@ -206,6 +208,10 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 
         double v = distancePID.compute(traveled);
         v = clamp(v, -speed, speed);
+
+        // Slew rate limiter to prevent slipping
+        v = accelLimit(prevV, v, 0.01, accelLimitRate);
+        prevV = v;
 
         // Heading error
         double rawHeading = getYaw();
