@@ -32,12 +32,12 @@ void unloadLongGoal(Autonomous auton) {
     highIntake.move_velocity(0);
 }
 
-
+// the "hump" function
 void loadFromLoader(Autonomous auton) {
     for (int i = 0; i < 1; i++){
-		auton.travel(-12, 50, 90, 0.3);
-        pros::delay(600);
-		auton.travel(12, 60, 90, 0.35);
-	 	
+        auton.travel(-12, 50, 90, 0.3);
+        pros::delay(100);
+		auton.travel(12, 60, 90, 0.4);
+	 	pros::delay(500);
 	}
 }

@@ -20,12 +20,13 @@ void competition_initialize() {}
 
 void autonomous() {
 	Autonomous auton = Autonomous();
-	pros::delay(100);
+	double last_distance_moved;
+	pros::delay(10);
 
 	// line up for botton right unloader
 	centerScore.set_value(true);
 	lowIntake.move_velocity(100);
-	auton.travel(34.4, 100, 0, -1);
+	auton.travel(33.4, 100, 0, -1); //32.4
 	centerScore.set_value(false);
 	lowIntake.move_velocity(0);
 
@@ -38,16 +39,26 @@ void autonomous() {
 	midIntake.move_velocity(30);
 	highIntake.move_velocity(-50);
 
-    auton.travel(30, 200, 90, 1);
+    last_distance_moved = auton.travel(50, 200, 90, 1);
+	// check if not entered loader
+	if (last_distance_moved < 11) {
+		do {
+			double back_distance = auton.travel(-2, 200, 90);
+			last_distance_moved = auton.travel(30, 200, 90, 1) + back_distance;
+			pros::lcd::print(2, "Distance in loader: %lf", last_distance_moved);
+		} while (last_distance_moved < 1);
+	}
+	auton.travel(-1, 50, 90);
+	pros::lcd::print(1, "Distance in loader: %lf", last_distance_moved);
+
+	
 	// hump loader
+	pros::delay(500);
 	loadFromLoader(auton);
 
 
-
 	// go to long goal
-	auton.travel(-35, 150, 90, 2); // s:50 t:3.25
-	// auton.turnTo(93);
-	// auton.travel(-20, 100, 95, 2);
+	auton.travel(-35, 170, 110, 2); // s:50 t:3.25
 	unloadLongGoal(auton);
 
 	// go to upper right balls
@@ -55,31 +66,30 @@ void autonomous() {
 	auton.turnTo(0);
 	auton.travel(-15, 50, 0, -1);
 	auton.turnTo(-90);
-	auton.travel(83, 150, -90, -1);
+	auton.travel(75, 150, -90, -1); // 83 150 -90 -1
 	auton.turnTo(0);
 	unloader.set_value(false);
 
 	// get top right balls
 	move_intake(100, 100, -100);
-	auton.travel(38, 70, 0, 2);
-	auton.travel(-2, 100, 0, 0.7);
-	auton.travel(4, 100, 0, 0.7);
-	move_intake(0, 0, 0);
+	auton.travel(38, 70, -20, 2); // 38 70 9 1.9
+	auton.travel(-2, 100, 0, 0.6);
+	auton.travel(4, 100, 0, 0.6);
+
 	
 	pros::delay(100);
 	// line up with upper right unloader
-	auton.travel(-15, 50, 0, -1);//lo hi 17
+	auton.travel(-15, 50, 0, -1);//15
 	unloader.set_value(true);
 	auton.turnTo(-90);
 
-	//travel to unloader
+	//travel to top right unloader
+	auton.travel(30, 200, -90, 1);
 	lowIntake.move_velocity(100);
 	midIntake.move_velocity(100);
 	highIntake.move_velocity(-50);
 	
-	
-	//un load from unloader
-	auton.travel(30, 200, -90, 1);
+	// hump top right unloader
 	loadFromLoader(auton);
 
 	// go to long goal
@@ -87,7 +97,19 @@ void autonomous() {
 
 	unloadLongGoal(auton);
 
-	auton.travel(10, 50, 90, -1);
+	// move from goal to park area
+	auton.travel(10, 50, -90, -1);
+	auton.turnTo(0);
+	auton.travel(-20, 50, 0, -1);
+	auton.turnTo(90);
+	auton.travel(90, 100, 90, -1);
+
+
+
+
+
+
+
 
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);

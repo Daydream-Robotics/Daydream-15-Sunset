@@ -33,8 +33,8 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double DISTANCE_KP = 7.5;// 5.0
-constexpr double DISTANCE_KI = 1.0; // 2.0
+constexpr double DISTANCE_KP = 4.25;// 5.0
+constexpr double DISTANCE_KI = 0.0; // 2.0
 constexpr double DISTANCE_KD = 0.0; // 0.0  lo: 5
 constexpr double DISTANCE_KI_THRESHOLD = 1.0;
 

@@ -151,7 +151,7 @@ void Autonomous::turnTo(double targetHeading) {
 		pros::delay(10);
 	}
 
-	pros::lcd::print(2, "Exited Turn Loop");
+	// pros::lcd::print(2, "Exited Turn Loop");
 
 	leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
@@ -160,7 +160,8 @@ void Autonomous::turnTo(double targetHeading) {
 	updatePose();
 }
 
-void Autonomous::travel(double distance, double speed, double targetHeading, double timer_s) {
+double Autonomous::travel(double distance, double speed, double targetHeading, double timer_s) {
+	double traveled = 0;
 
     auto clamp = [](double v, double lo, double hi) {
         return (v < lo) ? lo : (v > hi) ? hi : v;
@@ -174,8 +175,8 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 	// int count = 0;
     distancePID.setTarget(distance);
     distancePID.exit_condition_set(
-        0.2, 50,
-        2.0, 60000,
+        0.2, 25,
+        0.5, 50,
         200,
         timer_s * 1000
     );
@@ -200,7 +201,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
         // Compute traveled distance along heading vector
         Position delta { pos_x - start.x, pos_y - start.y };
         // double traveled = delta.y * headingUnit.x + delta.x * headingUnit.y;
-		double traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
+		traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
 
 		// pros::lcd::print(1, "Delta: x: %.2f, y: %.2f", delta.x, delta.y);
 		// pros::lcd::print(2, "Heading Unit: x: %.2f, y: %.2f", headingUnit.x, headingUnit.y);
@@ -218,7 +219,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
         double rawHeading = getYaw();
         if (rawHeading < 0) {
             pros::lcd::print(0, "IMU Failure!");
-            return;
+            break;
         }
 
         double headingError = normalizeDeg(targetHeading - rawHeading);
@@ -255,6 +256,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
     leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
     pros::delay(250);
+	return traveled;
 }
 
 
