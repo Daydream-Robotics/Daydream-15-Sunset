@@ -37,7 +37,8 @@ void autonomous() {
 	lowIntake.move_velocity(100);
 	midIntake.move_velocity(30);
 	highIntake.move_velocity(-50);
-    auton.travel(16, 45, 90, 1.150);
+
+    auton.travel(20, 200, 90, 1);
 
 
 	// hump loader
@@ -54,7 +55,7 @@ void autonomous() {
 	auton.turnTo(0);
 	auton.travel(-15, 50, 0, -1);
 	auton.turnTo(-90);
-	auton.travel(83, 70, -90, -1);
+	auton.travel(83, 150, -90, -1);
 	auton.turnTo(0);
 	unloader.set_value(false);
 
@@ -75,7 +76,8 @@ void autonomous() {
 	lowIntake.move_velocity(100);
 	midIntake.move_velocity(100);
 	highIntake.move_velocity(-50);
-	auton.travel(12, 100, -90, 2);
+
+	auton.travel(20, 200, -90, 1);
 
 	//hump unloader
 	loadFromLoader(auton);

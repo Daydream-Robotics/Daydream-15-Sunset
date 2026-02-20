@@ -38,15 +38,15 @@ constexpr double DISTANCE_KI = 2.0;
 constexpr double DISTANCE_KD = 0.0;
 constexpr double DISTANCE_KI_THRESHOLD = 1.0;
 
-constexpr double HEADING_KP = 0.004; // 0.002
+constexpr double HEADING_KP = 0.01; // lo 0.005 best 0.01 hi 0.015
 constexpr double HEADING_KI = 0.0;
 constexpr double HEADING_KD = 0.0;
 constexpr double HEADING_KI_THRESHOLD = 2;
 
 constexpr double TURN_KP = 1.22;
-constexpr double TURN_KI = 0.009; // hi 0.01
+constexpr double TURN_KI = 0.001; // hi 0.0025
 constexpr double TURN_KD = 0.063875;
-constexpr double TURN_KI_THRESHOLD = 2;
+constexpr double TURN_KI_THRESHOLD = 3;
 
 // constexpr double STRAIGHTENING_KP = 0.0;
 

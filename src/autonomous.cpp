@@ -105,7 +105,7 @@ void Autonomous::turnTo(double targetHeading) {
 	// TODO: Tune exit conditions
     turnPID.exit_condition_set(
         0.3, 75,     // small error (deg), time (ms)
-        2.0, 10000,     // big error (deg), time
+        0.75, 200,     // big error (deg), time
         200,          // velocity settle time
         0          // timeout
     );
