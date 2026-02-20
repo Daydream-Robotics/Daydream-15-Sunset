@@ -105,7 +105,7 @@ void Autonomous::turnTo(double targetHeading) {
 	// TODO: Tune exit conditions
     turnPID.exit_condition_set(
         0.3, 75,     // small error (deg), time (ms)
-        0.75, 200,     // big error (deg), time
+        0.9, 50,     // big error (deg), time
         200,          // velocity settle time
         0          // timeout
     );
@@ -174,7 +174,7 @@ void Autonomous::travel(double distance, double speed, double targetHeading, dou
 	// int count = 0;
     distancePID.setTarget(distance);
     distancePID.exit_condition_set(
-        0.1, 50,
+        0.2, 50,
         2.0, 60000,
         200,
         timer_s * 1000

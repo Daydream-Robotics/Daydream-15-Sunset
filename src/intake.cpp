@@ -10,11 +10,11 @@ void unloadLongGoal(Autonomous auton) {
     // dislodge
     unloader.set_value(true);
     lowIntake.move_velocity(-100);
-    midIntake.move_velocity(-100);
-    highIntake.move_velocity(-200);
+    midIntake.move_velocity(300); // -100
+    highIntake.move_velocity(300); // -200
     pros::delay(600);
 
-    // 
+    // h
     lowIntake.move_velocity(300);
     midIntake.move_velocity(300);
     highIntake.move_velocity(300);
@@ -34,9 +34,10 @@ void unloadLongGoal(Autonomous auton) {
 
 
 void loadFromLoader(Autonomous auton) {
-    for (int i = 0; i < 3; i++){
-		auton.travel(-12, 50, 90, 0.25);
+    for (int i = 0; i < 1; i++){
+		auton.travel(-12, 50, 90, 0.3);
+        pros::delay(600);
 		auton.travel(12, 60, 90, 0.35);
-	 	pros::delay(500);
+	 	
 	}
 }

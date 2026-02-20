@@ -54,7 +54,7 @@ class Autonomous {
         double heading = 0.0;
 
         // Acceleration limit for takeoff (in/s^2)
-        double accelLimitRate = 200.0; // TODO: tune
+        double accelLimitRate = 130.0; // TODO: lo: 50 hi 150
 
         // Time for takeoff (s)
         double takeoffRampTime = 0.35; // TODO: tune
