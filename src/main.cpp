@@ -25,8 +25,9 @@ void autonomous() {
 
 	// line up for botton right unloader
 	centerScore.set_value(true);
+	descorer.set_value(true);
 	lowIntake.move_velocity(100);
-	auton.travel(34, 100, 0, -1); //32.4
+	auton.travel(33.5, 100, 0, -1); //33
 	centerScore.set_value(false);
 	lowIntake.move_velocity(0);
 
@@ -66,19 +67,22 @@ void autonomous() {
 	pros::lcd::print(2, "Target Heading %d", target_heading);
 	auton.travel(-50, 200, target_heading, 2); // s:50 t:3.25
 	unloadLongGoal(auton);
+	unloader.set_value(false);
 
 	// go to upper right balls
 	move_intake(-100, -100, 0);
 	auton.travel(10, 50, 90, -1);
 	auton.turnTo(0);
-	auton.travel(-15, 50, 0, -1);
+	move_intake(100, 100, 100);
+	// auton.travel(-15, 50, 0, -1);
+	auton.travelToX(22, 50, 0);
 	auton.turnTo(-90);
 	auton.travel(71, 150, -90, -1); // 83 150 -90 -1
-	move_intake(0, 0, 0);
+	// move_intake(0, 0, 0);
 	
 	// get top right balls
 	auton.turnTo(-15);
-	unloader.set_value(false);
+	// unloader.set_value(false);
 	move_intake(100, 100, -100);
 	auton.travel(38, 70, -15, 2.1); // 38 70 9 1.9
 	// auton.travel(4, 100, 0, 0.5);
@@ -88,7 +92,8 @@ void autonomous() {
 	
 	pros::delay(100);
 	// line up with upper right unloader
-	auton.travel(-15, 50, 0);//15
+	// auton.travel(-15, 50, 0);//15
+	auton.travelToX(33.5, 50, 0);
 	unloader.set_value(true);
 	auton.turnTo(-90);
 	pros::delay(50);
@@ -117,7 +122,7 @@ void autonomous() {
 	pros::lcd::print(1, "X Diff %lf", x_diff);
 
 	// go to top right of long goal
-	target_heading = -100 - x_diff*5;
+	target_heading = -95 - x_diff*5;
 	pros::lcd::print(2, "Target Heading %d", target_heading);
 	auton.travel(-50, 200, target_heading, 2);
 
@@ -126,11 +131,13 @@ void autonomous() {
 	// move from goal to park area
 	auton.travel(10, 50, -90, -1);
 	auton.turnTo(0);
-	auton.travel(-18, 50, 0, -1);
+	auton.travelToX(18, 50, 0);
+	// auton.travel(-19, 50, 0, -1);
+	pros::lcd::print(5, "X_pos: %lf", auton.pos_x);
 	auton.turnTo(90);
 	unloader.set_value(false);
 	move_intake(100, 100, 100);
-	auton.travel(95, 200, 90, 2.2);
+	auton.travel(95, 200, 90, 2.25 );
 
 	//park
 	auton.turnTo(170);
@@ -140,10 +147,6 @@ void autonomous() {
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
 
-	
-
-	// auton.turnTo(170);
-	// auton.travel(50, 200, -180, 2);
 
 
 

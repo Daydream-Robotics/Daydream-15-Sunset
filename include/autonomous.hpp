@@ -34,6 +34,8 @@ class Autonomous {
         // Returns the current yaw (deg) from IMU; Returns -1 if IMU failure
         double getYaw(void);
 
+        void travelToX(double x_targ, double speed, double target_heading, int timer=-1);
+
         // x-position of bot (inches)
         double pos_x = 0.0;
     
