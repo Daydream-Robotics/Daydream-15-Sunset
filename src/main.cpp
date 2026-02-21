@@ -104,8 +104,8 @@ void autonomous() {
 	if (last_distance_moved < 11) {
 		int counter = 0;
 		do {
-			double back_distance = auton.travel(-3, 200, -90, 1);
-			last_distance_moved = auton.travel(50, 200, -90, 1) + back_distance;
+			double back_distance = auton.travel(-3, 200, -90, 0.7);
+			last_distance_moved = auton.travel(50, 200, -90, 0.7) + back_distance;
 			pros::lcd::print(2, "Distance in loader 2: %lf", last_distance_moved);
 		} while (last_distance_moved < 1 and ++counter < 2);
 	}
