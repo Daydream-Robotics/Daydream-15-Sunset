@@ -26,7 +26,7 @@ void autonomous() {
 	// line up for botton right unloader
 	centerScore.set_value(true);
 	lowIntake.move_velocity(100);
-	auton.travel(33.4, 100, 0, -1); //32.4
+	auton.travel(34, 100, 0, -1); //32.4
 	centerScore.set_value(false);
 	lowIntake.move_velocity(0);
 
@@ -39,45 +39,42 @@ void autonomous() {
 	midIntake.move_velocity(30);
 	highIntake.move_velocity(-50);
 
-	// pros::lcd::print(4, "Y Pos %lf", auton.pos_y);
 	double before_loader_x = auton.pos_x;
-    last_distance_moved = auton.travel(50, 200, 90, 1);
+    last_distance_moved = auton.travel(60, 200, 90, 1);
+	pros::lcd::print(1, "Distance in loader: %lf", last_distance_moved);
 	// check if not entered loader
 	if (last_distance_moved < 11) {
 		int counter = 0;
 		do {
-			double back_distance = auton.travel(-3, 200, 90,1);
-			last_distance_moved = auton.travel(50, 200, 90, 1) + back_distance;
-			// pros::lcd::print(2, "Distance in loader: %lf", last_distance_moved);
+			double back_distance = auton.travel(-3, 200, 90,0.7);
+			last_distance_moved = auton.travel(70, 200, 90, 0.7) + back_distance;
+			pros::lcd::print(2, "Distance in loader: %lf", last_distance_moved);
 		} while (last_distance_moved < 1 and ++counter < 2);
 	}
-	auton.travel(-1, 50, 90);
-	// pros::lcd::print(1, "Distance in loader: %lf", last_distance_moved);
-	// pros::lcd::print(6, "Y Pos %lf", auton.pos_y);
+	auton.travel(-1, 100, 90);
+	
+	
+	// hump loader
+	// pros::delay(100);
+	hump(auton);
+	
 	double x_diff = auton.pos_x - before_loader_x;
 	pros::lcd::print(1, "X Diff %lf", x_diff);
 
-	
-	// hump loader
-	pros::delay(500);
-	loadFromLoader(auton);
-
-
 	// go to long goaln
-	int target_heading = 90 - x_diff*4.5;
+	int target_heading = 100 - x_diff*6;
 	pros::lcd::print(2, "Target Heading %d", target_heading);
-
-
-
-	auton.travel(-35, 170, target_heading, 2); // s:50 t:3.25
+	auton.travel(-50, 200, target_heading, 2); // s:50 t:3.25
 	unloadLongGoal(auton);
 
 	// go to upper right balls
+	move_intake(-100, -100, 0);
 	auton.travel(10, 50, 90, -1);
 	auton.turnTo(0);
 	auton.travel(-15, 50, 0, -1);
 	auton.turnTo(-90);
 	auton.travel(71, 150, -90, -1); // 83 150 -90 -1
+	move_intake(0, 0, 0);
 	
 	// get top right balls
 	auton.turnTo(-15);
@@ -97,39 +94,56 @@ void autonomous() {
 	pros::delay(50);
 
 	//travel to top right unloader
-	last_distance_moved = auton.travel(30, 200, -90, 1);
-	pros::lcd::print(4, "Distance in loader: %lf", last_distance_moved);
 	lowIntake.move_velocity(100);
 	midIntake.move_velocity(100);
 	highIntake.move_velocity(-50);
 	
+	pros::lcd::print(1, "Distance in loader 1: %lf", last_distance_moved);
+	before_loader_x = auton.pos_x;
+	last_distance_moved = auton.travel(30, 200, -90, 1);
 	if (last_distance_moved < 11) {
 		int counter = 0;
 		do {
 			double back_distance = auton.travel(-3, 200, -90, 1);
 			last_distance_moved = auton.travel(50, 200, -90, 1) + back_distance;
-			pros::lcd::print(5, "Distance in loader: %lf", last_distance_moved);
+			pros::lcd::print(2, "Distance in loader 2: %lf", last_distance_moved);
 		} while (last_distance_moved < 1 and ++counter < 2);
 	}
-	auton.travel(-1, 50, 90);
+	auton.travel(-1, 50, -90);
 	// hump top right unloader
-	loadFromLoader(auton);
+	hump(auton);
+
+	x_diff = auton.pos_x - before_loader_x;
+	pros::lcd::print(1, "X Diff %lf", x_diff);
 
 	// go to top right of long goal
-	auton.travel(-35, 100, -90, 2);
+	target_heading = -100 - x_diff*5;
+	pros::lcd::print(2, "Target Heading %d", target_heading);
+	auton.travel(-50, 200, target_heading, 2);
 
 	unloadLongGoal(auton);
 
 	// move from goal to park area
 	auton.travel(10, 50, -90, -1);
 	auton.turnTo(0);
-	auton.travel(-20, 50, 0, -1);
+	auton.travel(-18, 50, 0, -1);
 	auton.turnTo(90);
 	unloader.set_value(false);
 	move_intake(100, 100, 100);
 	auton.travel(95, 200, 90, 2.2);
+
+	//park
 	auton.turnTo(170);
-	auton.travel(50, 200, -180, 2);
+	leftMotors.move_velocity(200);
+	rightMotors.move_velocity(200);
+	pros::delay(1100);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
+
+	
+
+	// auton.turnTo(170);
+	// auton.travel(50, 200, -180, 2);
 
 
 

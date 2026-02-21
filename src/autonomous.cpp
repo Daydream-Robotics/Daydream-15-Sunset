@@ -197,6 +197,11 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
     while (true) {
         updatePose();
 		
+		if (pos_x < -1) {
+			pros::lcd::print(7, "OUT OF BOUNDS!");
+			break;
+		}
+
 		// controller.print(0,0, "%.2f, %.2f", pos_x, pos_y);
         // Compute traveled distance along heading vector
         Position delta { pos_x - start.x, pos_y - start.y };
