@@ -33,11 +33,20 @@ void unloadLongGoal(Autonomous auton) {
 }
 
 // the "hump" function
-void loadFromLoader(Autonomous auton) {
+void hump(Autonomous auton) {
     for (int i = 0; i < 1; i++){
-        auton.travel(-12, 50, 90, 0.3);
+        pros::delay(300);
+        auton.travel(-12, 50, 90, 0.4);
+        pros::delay(200);
+		// auton.travel(24, 150, 90, 0.4);
+        leftMotors.move_velocity(200);
+        rightMotors.move_velocity(200);
+        pros::delay(600);
+        leftMotors.move_velocity(-30);
+        rightMotors.move_velocity(-30);
         pros::delay(100);
-		auton.travel(12, 60, 90, 0.4);
-	 	pros::delay(400);
+        leftMotors.move_velocity(0);
+        rightMotors.move_velocity(0);
 	}
+    pros::delay(200);
 }

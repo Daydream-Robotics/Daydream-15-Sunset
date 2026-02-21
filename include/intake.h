@@ -3,7 +3,7 @@
 
 #include "autonomous.hpp"
 
-void loadFromLoader(Autonomous auton);
+void hump(Autonomous auton);
 void unloadLongGoal(Autonomous auton);
 
 #endif
