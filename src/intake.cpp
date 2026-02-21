@@ -20,11 +20,11 @@ void unloadLongGoal(Autonomous auton) {
     highIntake.move_velocity(300);
 
     // grab the ball at intake
-    auton.travel(12, 50, heading, 0.2);
-    auton.travel(-12, 50, heading, 0.4);
+    auton.travel(12, 50, heading, 0.3);
+    auton.travel(-12, 50, heading, 0.5);
 
     // wait
-    pros::delay(2000);
+    pros::delay(900);
 
     // stop
     lowIntake.move_velocity(0);
@@ -38,6 +38,6 @@ void loadFromLoader(Autonomous auton) {
         auton.travel(-12, 50, 90, 0.3);
         pros::delay(100);
 		auton.travel(12, 60, 90, 0.4);
-	 	pros::delay(500);
+	 	pros::delay(400);
 	}
 }

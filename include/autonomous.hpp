@@ -33,6 +33,12 @@ class Autonomous {
 
         // Returns the current yaw (deg) from IMU; Returns -1 if IMU failure
         double getYaw(void);
+
+        // x-position of bot (inches)
+        double pos_x = 0.0;
+    
+        // y-position of bot (inches)
+        double pos_y = 0.0;
     private:
 
         // Distance PID controller
@@ -44,11 +50,6 @@ class Autonomous {
         // Turning PID controller
         PID turnPID;
 
-        // x-position of bot (inches)
-        double pos_x = 0.0;
-
-        // y-position of bot (inches)
-        double pos_y = 0.0;
 
         // Heading of bot (rads)
         double heading = 0.0;

@@ -175,8 +175,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 	// int count = 0;
     distancePID.setTarget(distance);
     distancePID.exit_condition_set(
-        0.2, 25,
-        0.5, 50,
+        0.1, 10,
+        0.4, 30,
         200,
         timer_s * 1000
     );
@@ -225,7 +225,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         double headingError = normalizeDeg(targetHeading - rawHeading);
 
         // Heading correction
-        double omega = headingPID.compute(headingError);
+        double omega = headingPID.compute(headingError) * std::abs(v);
 
         // Differential drive
 		
