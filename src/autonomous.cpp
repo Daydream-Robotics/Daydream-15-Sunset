@@ -134,7 +134,6 @@ void Autonomous::turnTo(double targetHeading) {
 		std::chrono::duration<double> dt_dur = now - lastTime;
 		double dt = dt_dur.count();
 		lastTime = now;
-		prevHeading = rawHeading;
 		
 		// Determine PID correction using smoothed heading
 		double filteredHeading = headingFilter.update(rawHeading - 180);
@@ -156,6 +155,7 @@ void Autonomous::turnTo(double targetHeading) {
 		double currentVelocity = (turnSpeed < 20) ? angleDiffDeg(rawHeading, prevHeading) / dt : 999.0;
 		if (turnPID.exit_condition(currentVelocity) != PID::RUNNING)
 			break;
+		prevHeading = rawHeading;
 		
 		pros::delay(10);
 	}
@@ -167,6 +167,11 @@ void Autonomous::turnTo(double targetHeading) {
     pros::delay(10);
 
 	updatePose();
+}
+
+void Autonomous::setPose(double x, double y) {
+    this->pos_x = x;
+    this->pos_y = y;
 }
 
 double Autonomous::travel(double distance, double speed, double targetHeading, double timer_s) {
@@ -201,7 +206,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 		std::sin(headingRad)
 	};
 
-    double prevTraveled = 0.0;
+    double prevVelocity = 0.0;
+    double prevDistance = 0.0;
 
 	using clock = std::chrono::steady_clock;
 	auto lastTime = clock::now();
@@ -235,8 +241,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         v = clamp(v, -speed, speed);
 
         // Slew rate limiter to prevent slipping
-        v = accelLimit(prevTraveled, v, 0.01, accelLimitRate);
-        prevTraveled = v;
+        v = accelLimit(prevVelocity, v, dt, accelLimitRate);
+        prevVelocity = v;
 
         // Heading error
         double rawHeading = getYaw();
@@ -248,7 +254,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         double headingError = normalizeDeg(targetHeading - rawHeading);
 
         // Heading correction
-        double omega = headingPID.compute(headingError) * std::abs(v);
+        double omega = headingPID.compute(headingError) * (std::fabs(v) / speed);
 
         // Differential drive
 		
@@ -267,12 +273,13 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         rightMotors.move_velocity(right);
 
 		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
-		double currVel = (fabs(v) < 10) ? (traveled - prevTraveled) / dt : 999.0;
+		double currVel = (fabs(v) < 10) ? (traveled - prevDistance) / dt : 999.0;
         if (distancePID.exit_condition(currVel) != PID::RUNNING){
 			pros::lcd::print(0,0,"Exit Condition Meet");
             break;
 		}
-		  controller.print(0,0, "%.2f", rawHeading);
+        prevDistance = traveled;
+		//   controller.print(0,0, "%.2f", rawHeading);
 		// count++;
         pros::delay(10);
     }

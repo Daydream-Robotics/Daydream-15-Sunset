@@ -38,7 +38,7 @@ constexpr double DISTANCE_KI = 0.0; // 2.0
 constexpr double DISTANCE_KD = 0.0; // 0.0  lo: 5
 constexpr double DISTANCE_KI_THRESHOLD = 1.0;
 
-constexpr double HEADING_KP = 0.0002; // lo 0.0001 best 0.00 hi 0.00015
+constexpr double HEADING_KP = 2.0; // Increased for direct PID control
 constexpr double HEADING_KI = 0.0;
 constexpr double HEADING_KD = 0.0;
 constexpr double HEADING_KI_THRESHOLD = 2;
