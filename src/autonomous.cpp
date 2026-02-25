@@ -292,7 +292,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 
 
 // TODO: TEST
-void Autonomous::moveToPoint(double targetX, double targetY, double speed, bool reverse, double timer_s) {
+void Autonomous::moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse, double timer_s) {
     updatePose();
     double dx = targetX - pos_x;
     double dy = targetY - pos_y;
