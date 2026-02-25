@@ -34,12 +34,15 @@ class Autonomous {
         // Returns the current yaw (deg) from IMU; Returns -1 if IMU failure
         double getYaw(void);
 
+        // Set the robot's current position
+        void setPose(double x, double y);
+
         // void travelToX(double x_targ, double speed, double target_heading, int timer=-1);
 
         bool travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse=false, int timer=-1);
 
         // Move to a point with continuous heading correction (auto-corrects course)
-        void moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse = false, int timer_s=-1);
+        void moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse = false, double timer_s = 0.0);
 
         // x-position of bot (inches)
         double pos_x = 0.0;

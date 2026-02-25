@@ -133,6 +133,7 @@ void Autonomous::turnTo(double targetHeading) {
 		auto now = clock::now();
 		std::chrono::duration<double> dt_dur = now - lastTime;
 		double dt = dt_dur.count();
+        if (dt < 0.001) dt = 0.001; // Prevent division by zero
 		lastTime = now;
 		
 		// Determine PID correction using smoothed heading
@@ -217,6 +218,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 		auto now = clock::now();
 		std::chrono::duration<double> dt_dur = now - lastTime;
 		double dt = dt_dur.count();
+        if (dt < 0.001) dt = 0.001; // Prevent division by zero
 		lastTime = now;
 
         updatePose();
@@ -324,6 +326,7 @@ void Autonomous::moveToPoint(double targetX, double targetY, double maxSpeed, bo
         auto now = clock::now();
         std::chrono::duration<double> dt_dur = now - lastTime;
         double dt = dt_dur.count();
+        if (dt < 0.001) dt = 0.001; // Prevent division by zero
         lastTime = now;
         
         updatePose();
@@ -346,23 +349,23 @@ void Autonomous::moveToPoint(double targetX, double targetY, double maxSpeed, bo
         double v = distancePID.compute(distInput);
         
         // Clamp and Slew
-        if (v > speed) v = speed;
-        if (v < -speed) v = -speed;
+        if (v > maxSpeed) v = maxSpeed;
+        if (v < -maxSpeed) v = -maxSpeed;
         v = accelLimit(prevVelocity, v, dt, accelLimitRate);
         prevVelocity = v;
         
         // Heading PID
         headingPID.setTarget(targetHeading);
         // Note: We negate the result because of how travel() vs moveToPoint() calculates error
-        double omega = -headingPID.compute(rawHeading, true) * (std::fabs(v) / speed);
+        double omega = -headingPID.compute(rawHeading, true) * (std::fabs(v) / maxSpeed);
         
         double left = v + omega;
         double right = v - omega;
         
         // Scale to max speed
         double maxMag = std::max(std::fabs(left), std::fabs(right));
-        if (maxMag > speed) {
-            double scale = speed / maxMag;
+        if (maxMag > maxSpeed) {
+            double scale = maxSpeed / maxMag;
             left *= scale;
             right *= scale;
         }
