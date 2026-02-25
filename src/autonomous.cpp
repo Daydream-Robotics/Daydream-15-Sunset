@@ -291,6 +291,98 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 }
 
 
+// TODO: TEST
+void Autonomous::moveToPoint(double targetX, double targetY, double speed, bool reverse, double timer_s) {
+    updatePose();
+    double dx = targetX - pos_x;
+    double dy = targetY - pos_y;
+    double targetHeading = std::atan2(dy, dx) * 180.0 / M_PI;
+    
+    if (reverse) {
+        targetHeading += 180;
+        while (targetHeading > 180) targetHeading -= 360;
+    }
+    
+    // Initial turn to face the target
+    turnTo(targetHeading);
+    
+    // Setup PIDs
+    distancePID.reset();
+    distancePID.setTarget(0);
+    // Use similar exit conditions to travel
+    distancePID.exit_condition_set(0.5, 50, 2.0, 100, 2, 100, timer_s*1000);
+    
+    headingPID.reset();
+    
+    double prevVelocity = 0;
+    double prevDistance = 0;
+    
+    using clock = std::chrono::steady_clock;
+    auto lastTime = clock::now();
+    
+    while (true) {
+        auto now = clock::now();
+        std::chrono::duration<double> dt_dur = now - lastTime;
+        double dt = dt_dur.count();
+        lastTime = now;
+        
+        updatePose();
+        
+        dx = targetX - pos_x;
+        dy = targetY - pos_y;
+        double dist = std::hypot(dx, dy);
+        
+        // Continuously update target heading to point to target
+        targetHeading = std::atan2(dy, dx) * 180.0 / M_PI;
+        if (reverse) {
+            targetHeading += 180;
+            while (targetHeading > 180) targetHeading -= 360;
+        }
+        
+        double rawHeading = getYaw();
+        
+        // Distance PID input: negative distance if moving forward (to approach 0 from negative)
+        double distInput = reverse ? dist : -dist;
+        double v = distancePID.compute(distInput);
+        
+        // Clamp and Slew
+        if (v > speed) v = speed;
+        if (v < -speed) v = -speed;
+        v = accelLimit(prevVelocity, v, dt, accelLimitRate);
+        prevVelocity = v;
+        
+        // Heading PID
+        headingPID.setTarget(targetHeading);
+        // Note: We negate the result because of how travel() vs moveToPoint() calculates error
+        double omega = -headingPID.compute(rawHeading, true) * (std::fabs(v) / speed);
+        
+        double left = v + omega;
+        double right = v - omega;
+        
+        // Scale to max speed
+        double maxMag = std::max(std::fabs(left), std::fabs(right));
+        if (maxMag > speed) {
+            double scale = speed / maxMag;
+            left *= scale;
+            right *= scale;
+        }
+        
+        leftMotors.move_velocity(left);
+        rightMotors.move_velocity(right);
+        
+        // Exit condition based on velocity of distance error
+        double distVel = (std::fabs(v) < 10) ? (distInput - prevDistance) / dt : 999.0;
+        if (distancePID.exit_condition(distVel) != PID::RUNNING) break;
+        
+        prevDistance = distInput;
+        pros::delay(10);
+    }
+    
+    leftMotors.move_velocity(0);
+    rightMotors.move_velocity(0);
+}
+
+
 void Autonomous::updatePose(void) {
 	// Calculate distance travelled by each tracking wheel
 	WheelLengths arcs = getOdomWheelTravel();

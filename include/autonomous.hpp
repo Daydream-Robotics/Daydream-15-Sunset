@@ -38,6 +38,9 @@ class Autonomous {
 
         bool travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse=false, int timer=-1);
 
+        // Move to a point with continuous heading correction (auto-corrects course)
+        void moveToPoint(double targetX, double targetY, double speed, bool reverse = false, double timer_s = 0.0);
+
         // x-position of bot (inches)
         double pos_x = 0.0;
     
