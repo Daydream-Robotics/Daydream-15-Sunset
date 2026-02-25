@@ -28,6 +28,7 @@ void autonomous() {
 	auton.travelToPoint(33, 0, 100);
 
 	// matchload from bottom right
+	auton.travelToPoint(33, 12, 100, false, 1.5);
 
 	// score on bottom right of long goal
 	auton.travelToPoint(34, -12, 100, true);
@@ -37,11 +38,13 @@ void autonomous() {
 	auton.travelToPoint(22, -80, 100);
 
 	// retrieve top right red balls
+	auton.travelToPoint(40, -90, 100, false, 2);
 
 	// line up with top right matchloader
 	auton.travelToPoint(33, -90, 100);
 
 	// matchload from top right
+	auton.travelToPoint(33, -100, 100, false, 2);
 
 	// score on top right of long goal
 	auton.travelToPoint(34, -80, 100, true);
@@ -50,11 +53,13 @@ void autonomous() {
 	auton.travelToPoint(22, -90, 100);
 	auton.travelToPoint(22, 10, 100, true);
 
-
-
-
-
-
+	// park
+	auton.turnTo(170);
+	leftMotors.move_velocity(200);
+	rightMotors.move_velocity(200);
+	pros::delay(1100);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
 
 
 
