@@ -67,12 +67,14 @@ void PID::reset() {
 void PID::exit_condition_set(
     double smallError, int smallTime,
     double bigError, int bigTime,
-    int velocityTime, int timeout
+    double velocityThreshold, int velocityTime, 
+    int timeout
 ) {
     this->smallError = smallError;
     this->smallTime = smallTime;
     this->bigError = bigError;
     this->bigTime = bigTime;
+    this->velocityThreshold = velocityThreshold;
     this->velocityTime = velocityTime;
     this->timeout = timeout;
 }
@@ -108,7 +110,7 @@ PID::ExitState PID::exit_condition(double currentVelocity) {
     }
 
     // Velocity
-    if (std::fabs(currentVelocity) < 1e-3) {
+    if (std::fabs(currentVelocity) < velocityThreshold) {
         velocityCounter += 10;
         if (velocityCounter >= velocityTime)
             return VELOCITY_EXIT;

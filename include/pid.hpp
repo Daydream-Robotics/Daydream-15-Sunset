@@ -21,6 +21,7 @@ class PID {
         // Exit conditions
         double smallError, bigError;
         int smallTime, bigTime;
+        double velocityThreshold;
         int velocityTime, timeout;
         
         int smallCounter, bigCounter, velocityCounter;
@@ -38,7 +39,7 @@ class PID {
 
         // Set parameters for exiting PID computation
         void exit_condition_set(double smallError, int smallTime,
-            double bigError, int bigTime,
+            double bigError, int bigTime, double velocityThreshold,
             int velocityTime, int timeout);
         
         // Enum for different states for exiting PID computation

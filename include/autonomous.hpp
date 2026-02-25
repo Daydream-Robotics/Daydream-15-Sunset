@@ -36,6 +36,8 @@ class Autonomous {
 
         void travelToX(double x_targ, double speed, double target_heading, int timer=-1);
 
+        bool travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse=false, int timer=-1);
+
         // x-position of bot (inches)
         double pos_x = 0.0;
     

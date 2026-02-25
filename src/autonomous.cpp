@@ -106,16 +106,17 @@ void Autonomous::turnTo(double targetHeading) {
     turnPID.exit_condition_set(
         0.3, 75,     // small error (deg), time (ms)
         0.9, 50,     // big error (deg), time
-        200,          // velocity settle time
+       1 ,100,          // velocity settle time
         0          // timeout
     );
 
 	// TODO: Tune alpha
     HeadingFilter headingFilter(0.3);
 
-	// Initialize clocking
+		// Initialize clocking
 	using clock = std::chrono::steady_clock;
     auto lastTime = clock::now();
+	double prevHeading = getYaw();
 
 	while (true) {
 		// Heading calculation
@@ -128,26 +129,34 @@ void Autonomous::turnTo(double targetHeading) {
 			return;
 		}
 
+		// Calculate angular velocity
+		auto now = clock::now();
+		std::chrono::duration<double> dt_dur = now - lastTime;
+		double dt = dt_dur.count();
+		lastTime = now;
+		prevHeading = rawHeading;
+		
 		// Determine PID correction using smoothed heading
 		double filteredHeading = headingFilter.update(rawHeading - 180);
 		double correction = turnPID.compute(filteredHeading,true);
 		//pros::lcd::print(1, "Correction: %lf", correction);
-
+		
 		// Compute turnSpeed based on correction
 		double turnSpeed = std::clamp(
-            std::fabs(correction),
+			std::fabs(correction),
             1.0, // 2
             100.0 // 70
         );
-
+		
         turnSpeed = std::copysign(turnSpeed, correction);
-
+		
 		leftMotors.move_velocity(turnSpeed);
         rightMotors.move_velocity(-turnSpeed);
-
-		if (turnPID.exit_condition(100) != PID::RUNNING) // TODO: get Angular Velocity
-            break;
-
+		
+		double currentVelocity = (turnSpeed < 20) ? angleDiffDeg(rawHeading, prevHeading) / dt : 999.0;
+		if (turnPID.exit_condition(currentVelocity) != PID::RUNNING)
+			break;
+		
 		pros::delay(10);
 	}
 
@@ -155,7 +164,7 @@ void Autonomous::turnTo(double targetHeading) {
 
 	leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
-    pros::delay(100);
+    pros::delay(10);
 
 	updatePose();
 }
@@ -177,7 +186,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
     distancePID.exit_condition_set(
         0.1, 10,
         0.4, 30,
-        200,
+        1, 50,
         timer_s * 1000
     );
 
@@ -192,9 +201,18 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 		std::sin(headingRad)
 	};
 
-    double prevV = 0.0;
+    double prevTraveled = 0.0;
+
+	using clock = std::chrono::steady_clock;
+	auto lastTime = clock::now();
 
     while (true) {
+		// get elapesed time since last loop
+		auto now = clock::now();
+		std::chrono::duration<double> dt_dur = now - lastTime;
+		double dt = dt_dur.count();
+		lastTime = now;
+
         updatePose();
 		
 		if (pos_x < -1) {
@@ -217,8 +235,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         v = clamp(v, -speed, speed);
 
         // Slew rate limiter to prevent slipping
-        v = accelLimit(prevV, v, 0.01, accelLimitRate);
-        prevV = v;
+        v = accelLimit(prevTraveled, v, 0.01, accelLimitRate);
+        prevTraveled = v;
 
         // Heading error
         double rawHeading = getYaw();
@@ -249,7 +267,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         rightMotors.move_velocity(right);
 
 		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
-        if (distancePID.exit_condition(100) != PID::RUNNING){
+		double currVel = (fabs(v) < 10) ? (traveled - prevTraveled) / dt : 999.0;
+        if (distancePID.exit_condition(currVel) != PID::RUNNING){
 			pros::lcd::print(0,0,"Exit Condition Meet");
             break;
 		}
@@ -260,7 +279,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 
     leftMotors.move_velocity(0);
     rightMotors.move_velocity(0);
-    pros::delay(250);
+    pros::delay(10);
 	return traveled;
 }
 
@@ -357,24 +376,48 @@ WheelLengths Autonomous::getOdomWheelTravel(void) {
 }
 
 
-void Autonomous::travelToX(double x_targ, double speed, double target_heading, int timer) {
-    // double distanc;
+// void Autonomous::travelToX(double x_targ, double speed, double target_heading, int timer) {
+//     // double distanc;
 
-    updatePose();
-    Position start(pos_x, pos_y);
+//     updatePose();
+//     Position start(pos_x, pos_y);
     
-    double dx = x_targ - start.x;
+//     double dx = x_targ - start.x;
 
-	if (target_heading == 180) {
-		dx *= -1;
+// 	if (target_heading == 180) {
+// 		dx *= -1;
+// 	}
+//     // double dy = y_targ - start.y;
+
+//     // distance = std::hypot(dx, dy); //euclidean distance from start to end point
+
+//     // target_heading = std::atan2(dy, dx) * 180.0  / M_PI; // degrees
+
+
+//     travel(dx, speed, target_heading, timer);
+//     return;
+// }
+
+bool Autonomous::travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse, int timer) {
+	updatePose();
+	Position start(pos_x, pos_y);
+	double dx = targetX - start.x;
+	double dy = targetY - start.y;
+	
+	double distance = std::hypot(dx, dy); //euclidean distance from start to end point	
+	double targetHeading = std::atan2(dy, dx) * 180.0  / M_PI;
+	
+	if (reverse) {
+		targetHeading += 180;
+		if (targetHeading > 180) targetHeading -= 360;
+		
+		distance = -distance;
 	}
-    // double dy = y_targ - start.y;
 
-    // distance = std::hypot(dx, dy); //euclidean distance from start to end point
+	turnTo(targetHeading);
+	travel(distance, maxSpeed, targetHeading, timer);
 
-    // target_heading = std::atan2(dy, dx) * 180.0  / M_PI; // degrees
+	pros::delay(10);
 
-
-    travel(dx, speed, target_heading, timer);
-    return;
+	return true;
 }
