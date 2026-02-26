@@ -10,14 +10,13 @@ PID::PID(double p, double i, double d, double start_i) : kP(p), kI(i), kD(d), st
 
 double PID::compute(double current, bool usesAngle) {
     using clock = std::chrono::steady_clock;
-    static clock::time_point last_time = clock::now();
 
     // Determine time since last step
     auto now = clock::now();
-    std::chrono::duration<double> dt_dur = now - last_time;
+    std::chrono::duration<double> dt_dur = now - lastTime;
     double dt = dt_dur.count();
     if (dt <= 0.0) dt = 1e-3;
-    last_time = now;
+    lastTime = now;
 
     error = target - current;
     if (usesAngle) {
@@ -47,6 +46,12 @@ void PID::setTarget(double target) {
     reset();
 }
 
+void PID::setConstants(double p, double i, double d) {
+    kP = p;
+    kI = i;
+    kD = d;
+}
+
 void PID::reset() {
     // Reset collected error
     prevError = 0;
@@ -62,6 +67,7 @@ void PID::reset() {
 
     // Initialize start time
     startTime = std::chrono::steady_clock::now();
+    lastTime = startTime;
 }
 
 void PID::exit_condition_set(

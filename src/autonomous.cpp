@@ -105,8 +105,8 @@ void Autonomous::turnTo(double targetHeading) {
 	// TODO: Tune exit conditions
     turnPID.exit_condition_set(
         0.3, 75,     // small error (deg), time (ms)
-        0.9, 50,     // big error (deg), time
-       1 ,100,          // velocity settle time
+        0.5, 100,     // big error (deg), time
+       0.5 ,1000000,          // velocity settle time
         0          // timeout
     );
 
@@ -124,7 +124,7 @@ void Autonomous::turnTo(double targetHeading) {
 		updatePose();
 
 		if (rawHeading < 0) {
-			pros::lcd::print(0, "IMU Failure!");
+			pros::lcd::print(0, "[TurnTo] IMU Failure! YAW: %lf", rawHeading);
 			// TODO: Add more verbose error handling
 			return;
 		}
@@ -192,7 +192,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
     distancePID.exit_condition_set(
         0.1, 10,
         0.4, 30,
-        1, 50,
+        1, 200,
         timer_s * 1000
     );
 
@@ -223,10 +223,10 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
 
         updatePose();
 		
-		if (pos_x < -1) {
-			pros::lcd::print(7, "OUT OF BOUNDS!");
-			break;
-		}
+		// if (pos_x < -1) {
+		// 	pros::lcd::print(7, "OUT OF BOUNDS!");
+		// 	break;
+		// }
 
 		// controller.print(0,0, "%.2f, %.2f", pos_x, pos_y);
         // Compute traveled distance along heading vector
@@ -249,7 +249,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         // Heading error
         double rawHeading = getYaw();
         if (rawHeading < 0) {
-            pros::lcd::print(0, "IMU Failure!");
+            pros::lcd::print(0, "[Travel] IMU Failure!");
             break;
         }
 
@@ -393,7 +393,7 @@ void Autonomous::updatePose(void) {
 	const double yaw = getYaw();
 
 	if (yaw < 0) {
-		pros::lcd::print(0, "IMU Failure!");
+		pros::lcd::print(0, "[Update Pose] IMU Failure!");
 		return;
 	}
 

@@ -25,7 +25,7 @@ class PID {
         int velocityTime, timeout;
         
         int smallCounter, bigCounter, velocityCounter;
-        std::chrono::steady_clock::time_point startTime;
+        std::chrono::steady_clock::time_point startTime, lastTime;
         
     public:
         // Initialize PID with constants
@@ -33,6 +33,9 @@ class PID {
         
         // Set target and reset error
         void setTarget(double target);
+
+        // Set PID constants
+        void setConstants(double p, double i, double d);
 
         // Returns next output value based on current value
         double compute(double current, bool usesAngle = false);

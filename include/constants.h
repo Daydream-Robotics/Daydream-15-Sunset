@@ -33,19 +33,19 @@ constexpr int DEADZONE = 3;
 
 /* - - - - - - - - - - - - - - [PIDS] - - - - - - - - - - - - - - */
 
-constexpr double DISTANCE_KP = 4.25;// 5.0
-constexpr double DISTANCE_KI = 0.0; // 2.0
-constexpr double DISTANCE_KD = 0.0; // 0.0  lo: 5
+constexpr double DISTANCE_KP = 5;// 4.3
+constexpr double DISTANCE_KI = 0.0; // 0.0
+constexpr double DISTANCE_KD = 1.0; // 0.0
 constexpr double DISTANCE_KI_THRESHOLD = 1.0;
 
-constexpr double HEADING_KP = 2.0; // Increased for direct PID control
+constexpr double HEADING_KP = 0.025; // Increased for direct PID control
 constexpr double HEADING_KI = 0.0;
 constexpr double HEADING_KD = 0.0;
 constexpr double HEADING_KI_THRESHOLD = 2;
 
-constexpr double TURN_KP = 1.2; // 1.22
+constexpr double TURN_KP = 1.2; // 1.2
 constexpr double TURN_KI = 0.00000; // hi 0.0001
-constexpr double TURN_KD = 0.063875;
+constexpr double TURN_KD = 0.068; // 0.063875   lo 0.066 hi 0.06515
 constexpr double TURN_KI_THRESHOLD = 2;
 
 // constexpr double STRAIGHTENING_KP = 0.0;

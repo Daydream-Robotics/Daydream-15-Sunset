@@ -5,10 +5,15 @@
 #include "autonomous.hpp"
 #include "pid.hpp"
 #include "intake.h"
+#include "autotuner.hpp"
 
 void initialize() {
 	pros::lcd::initialize();
 	imu.reset();
+
+	while(imu.is_calibrating()) {
+		pros::delay(20);
+	}
 
 	leftMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
 	rightMotors.set_encoder_units_all(MOTOR_ENCODER_DEGREES);
@@ -19,45 +24,76 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
+	pros::delay(500); // Allow system to settle
 	Autonomous auton = Autonomous();
+	// AutoTuner::run(auton);
+
+	// while(true) {
+	// 	auton.updatePose();
+	// 	pros::lcd::print(1, "X: %lf", auton.pos_x);
+	// 	pros::lcd::print(2, "Y: %lf", auton.pos_y);
+	// 	pros::lcd::print(3, "Heading: %lf", auton.heading);
+	// 	pros::delay(50);
+	// }
+
+	// auton.travelToPoint(48, 0, 200);
+	// controller.rumble("-");
+	// auton.travelToPoint(48, -48, 200);
+	// controller.rumble("-");
+	// auton.travelToPoint(0, -48, 200);
+	// controller.rumble("-");
+	// auton.travelToPoint(0, 0, 200);
+	// controller.rumble("-");
+	// auton.turnTo(0);
 
 	// initilize and line up with bottom right matchloader
 	centerScore.set_value(true);
 	descorer.set_value(true);
-	lowIntake.move_velocity(100);
-	auton.travelToPoint(33, 0, 100);
+	lowIntake.move_velocity(200);
+	auton.travelToPoint(34.33, 0, 200);
+	lowIntake.move_velocity(0);
+	centerScore.set_value(false);
+
 
 	// matchload from bottom right
-	auton.travelToPoint(33, 12, 100, false, 1.5);
+	move_intake(200, 200, -200);
+	auton.travelToPoint(34, 12, 200, false, 2);
+	leftMotors.move_velocity(50);
+	rightMotors.move_velocity(50);
+	pros::delay(3000);
 
 	// score on bottom right of long goal
-	auton.travelToPoint(34, -12, 100, true);
+	auton.travelToPoint(36, -18, 200, true, 4);  // lo 35
+	unloadLongGoal(auton);
+	move_intake(0, 0, 0);
 
 	// line up with top right red balls
-	auton.travelToPoint(22, 0, 100);
-	auton.travelToPoint(22, -80, 100);
+	auton.travelToPoint(36, -10, 200);
+	auton.travelToPoint(22, -10, 200);
+	auton.travelToPoint(22, -80, 200);
 
 	// retrieve top right red balls
-	auton.travelToPoint(40, -90, 100, false, 2);
+	auton.travelToPoint(40, -90, 200, false, 2);
 
 	// line up with top right matchloader
-	auton.travelToPoint(33, -90, 100);
+	auton.travelToPoint(33, -90, 200, true);
 
 	// matchload from top right
-	auton.travelToPoint(33, -100, 100, false, 2);
+	auton.travelToPoint(33, -100, 200, false, 2);
 
 	// score on top right of long goal
-	auton.travelToPoint(34, -80, 100, true);
+	auton.travelToPoint(36.33, -75, 200, true);
+	move_intake(0, 0, 0);
 
 	// move to park
-	auton.travelToPoint(22, -90, 100);
-	auton.travelToPoint(22, 10, 100, true);
+	auton.travelToPoint(22, -90, 200);
+	auton.travelToPoint(22, 10, 200, true);
 
 	// park
 	auton.turnTo(170);
 	leftMotors.move_velocity(200);
 	rightMotors.move_velocity(200);
-	pros::delay(1100);
+	pros::delay(1200);
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
 
@@ -69,7 +105,7 @@ void autonomous() {
 
 
 
-	//==========================================
+	// ==========================================
 	// was working
 	// =========================================
 
@@ -79,8 +115,8 @@ void autonomous() {
 	// // line up for botton right unloader
 	// centerScore.set_value(true);
 	// descorer.set_value(true);
-	// lowIntake.move_velocity(100);
-	// auton.travel(33, 100, 0, -1); //33.5
+	// lowIntake.move_velocity(200);
+	// auton.travel(33, 200, 0, -1); //33.5
 	// centerScore.set_value(false);
 	// lowIntake.move_velocity(0);
 
@@ -89,7 +125,7 @@ void autonomous() {
 	// auton.turnTo(93 );
 	
 	// // go to unloader
-	// lowIntake.move_velocity(100);
+	// lowIntake.move_velocity(200);
 	// midIntake.move_velocity(30);
 	// highIntake.move_velocity(-50);
 
@@ -105,28 +141,28 @@ void autonomous() {
 	// 		pros::lcd::print(2, "Distance in loader: %lf", last_distance_moved);
 	// 	} while (last_distance_moved < 1 and ++counter < 2);
 	// }
-	// auton.travel(-1, 100, 90);
+	// auton.travel(-1, 200, 90);
 	
 	
 	// // hump loader
-	// // pros::delay(100);
+	// // pros::delay(200);
 	// hump(auton);
 	
 	// double x_diff = auton.pos_x - before_loader_x;
 	// pros::lcd::print(1, "X Diff %lf", x_diff);
 
 	// // go to long goaln
-	// int target_heading = 100 - x_diff*6;
+	// int target_heading = 200 - x_diff*6;
 	// pros::lcd::print(2, "Target Heading %d", target_heading);
 	// auton.travel(-50, 200, target_heading, 2); // s:50 t:3.25
 	// unloadLongGoal(auton);
 	// unloader.set_value(false);
 
 	// // go to upper right balls
-	// move_intake(-100, -100, 0);
+	// move_intake(-200, -200, 0);
 	// auton.travel(10, 50, 90, -1);
 	// auton.turnTo(0);
-	// move_intake(100, 100, 100);
+	// move_intake(200, 200, 200);
 	// // auton.travel(-15, 50, 0, -1);
 	// auton.travelToX(22, 50, 0);
 	// auton.turnTo(-90);
@@ -136,14 +172,14 @@ void autonomous() {
 	// // get top right balls
 	// auton.turnTo(-15);
 	// // unloader.set_value(false);
-	// move_intake(100, 100, -100);
+	// move_intake(200, 200, -200);
 	// auton.travel(38, 70, -15, 2.1); // 38 70 9 1.9
-	// // auton.travel(4, 100, 0, 0.5);
-	// auton.travel(-2, 100, 0, 0.5);
-	// auton.travel(4, 100, 0, 0.5);
+	// // auton.travel(4, 200, 0, 0.5);
+	// auton.travel(-2, 200, 0, 0.5);
+	// auton.travel(4, 200, 0, 0.5);
 
 	
-	// pros::delay(100);
+	// pros::delay(200);
 	// // line up with upper right unloader
 	// // auton.travel(-15, 50, 0);//15
 	// auton.travelToX(33, 50, 0);
@@ -152,8 +188,8 @@ void autonomous() {
 	// pros::delay(50);
 
 	// //travel to top right unloader
-	// lowIntake.move_velocity(100);
-	// midIntake.move_velocity(100);
+	// lowIntake.move_velocity(200);
+	// midIntake.move_velocity(200);
 	// highIntake.move_velocity(-50);
 	
 	// pros::lcd::print(1, "Distance in loader 1: %lf", last_distance_moved);
@@ -189,14 +225,14 @@ void autonomous() {
 	// pros::lcd::print(5, "X_pos: %lf", auton.pos_x);
 	// auton.turnTo(90);
 	// unloader.set_value(false);
-	// move_intake(100, 100, 100);
+	// move_intake(200, 200, 200);
 	// auton.travel(95, 200, 90, 2.25 );
 
 	// //park
 	// auton.turnTo(170);
 	// leftMotors.move_velocity(200);
 	// rightMotors.move_velocity(200);
-	// pros::delay(1100);
+	// pros::delay(1200);
 	// leftMotors.move_velocity(0);
 	// rightMotors.move_velocity(0);
 
@@ -213,7 +249,7 @@ void autonomous() {
 
 	// leftMotors.move_velocity(0);
 	// rightMotors.move_velocity(0);
-	// pros::delay(100);
+	// pros::delay(200);
 
 
 
@@ -223,7 +259,7 @@ void autonomous() {
 
 
 	
-	pros::delay(100);
+	pros::delay(200);
 	controller.rumble("..");
 	
 	
@@ -234,14 +270,39 @@ void autonomous() {
 }
 
 void opcontrol() {
-	// Set chassis brake mode to coast
-	leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-	rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+	initialize();
+	pros::delay(500); // Allow system to settle
 
-	// Set intake motors to brake
-	lowIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	midIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	highIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
+	Autonomous auton = Autonomous();
+	// AutoTuner::run(auton);
+
+	// while(true) {
+	// 	auton.updatePose();
+	// 	pros::lcd::print(1, "X: %lf", auton.pos_x);
+	// 	pros::lcd::print(2, "Y: %lf", auton.pos_y);
+	// 	pros::lcd::print(3, "Heading: %lf", auton.heading);
+	// 	pros::delay(50);
+	// }
+
+	auton.travelToPoint(48, 0, 200);
+	controller.rumble("-");
+	auton.travelToPoint(48, -48, 200);
+	controller.rumble("-");
+	auton.travelToPoint(0, -48, 200);
+	controller.rumble("-");
+	auton.travelToPoint(0, 0, 200);
+	controller.rumble("-");
+	auton.turnTo(0);
+
+	// // Set chassis brake mode to coast
+	// leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+	// rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+
+	// // Set intake motors to brake
+	// lowIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	// midIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	// highIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
 	
 
@@ -308,7 +369,7 @@ void move_intake(int low, int mid, int high, double seconds) {
 
 
 	if (seconds != 0) {
-		pros::delay(seconds * 1000);
+		pros::delay(seconds * 2000);
 
 		lowIntake.move(STOP);
 		midIntake.move(STOP);
