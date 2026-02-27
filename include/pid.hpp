@@ -32,7 +32,7 @@ class PID {
         PID(double p, double i, double d, double start_i);
         
         // Set target and reset error
-        void setTarget(double target);
+        void setTarget(double target, bool resetPID = true);
 
         // Set PID constants
         void setConstants(double p, double i, double d);

@@ -41,10 +41,10 @@ class Autonomous {
 
         // void travelToX(double x_targ, double speed, double target_heading, int timer=-1);
 
-        bool travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse=false, int timer=-1);
+        bool travelToPoint(double targetX, double targetY, double maxSpeed=100, bool reverse=false, int timer=-1);
 
         // Move to a point with continuous heading correction (auto-corrects course)
-        void moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse = false, double timer_s = 0.0);
+        // // void moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse = false, double timer_s = 0.0);
 
         // x-position of bot (inches)
         double pos_x = 0.0;
@@ -66,7 +66,7 @@ class Autonomous {
         PID turnPID;
 
         // Acceleration limit for takeoff (in/s^2)
-        double accelLimitRate = 50.0; // TODO: lo: 50 hi 150
+        double accelLimitRate = 125.0; // TODO: lo: 90 hi: 140 
 
         // Time for takeoff (s)
         double takeoffRampTime = 0.35; // TODO: tune

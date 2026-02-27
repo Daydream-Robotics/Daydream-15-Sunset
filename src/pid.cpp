@@ -41,9 +41,9 @@ double PID::compute(double current, bool usesAngle) {
     return output;
 }
 
-void PID::setTarget(double target) { 
+void PID::setTarget(double target, bool resetPID) { 
     this->target = target; 
-    reset();
+    if (resetPID) reset();
 }
 
 void PID::setConstants(double p, double i, double d) {

@@ -9,15 +9,15 @@ void unloadLongGoal(Autonomous auton) {
     
     // dislodge
     unloader.set_value(true);
-    lowIntake.move_velocity(-100);
+    lowIntake.move_velocity(-70);
     midIntake.move_velocity(300); // -100
     highIntake.move_velocity(300); // -200
     pros::delay(600);
 
     // h
-    lowIntake.move_velocity(300);
-    midIntake.move_velocity(300);
-    highIntake.move_velocity(300);
+    lowIntake.move_velocity(600);
+    midIntake.move_velocity(600);
+    highIntake.move_velocity(600);
 
     // grab the ball at intake
     auton.travel(12, 50, heading, 0.3);
@@ -26,7 +26,7 @@ void unloadLongGoal(Autonomous auton) {
     // wait
     // pros::delay(900);
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 10; i++) {
         checkOuttakeStall();
         pros::delay(100);
     }
@@ -39,19 +39,23 @@ void unloadLongGoal(Autonomous auton) {
 
 // the "hump" function
 void hump(Autonomous auton) {
-    for (int i = 0; i < 2; i++){
-		// auton.travel(24, 150, 90, 0.4);
-        leftMotors.move_velocity(170);
-        rightMotors.move_velocity(170);
-        pros::delay(700);
-        leftMotors.move_velocity(-40);
-        rightMotors.move_velocity(-40);
-        pros::delay(450);
-        // leftMotors.move_velocity(0);
-        // rightMotors.move_velocity(0);
-        // pros::delay(150);
+    move_intake(200, 200, -200);
+    for (int i = 0; i < 3; i++){
+        // auton.travel(24, 150, 90, 0.4);
+        leftMotors.move_velocity(-30);
+        rightMotors.move_velocity(-30);
+        pros::delay(300);  // lo 200
+        leftMotors.move_velocity(50);
+        rightMotors.move_velocity(50);
+        pros::delay(400);
+        leftMotors.move_velocity(0);
+        rightMotors.move_velocity(0);
+        pros::delay(600);
 	}
-    pros::delay(200);
+    // pros::delay(200);
+    leftMotors.move_velocity(0);
+    rightMotors.move_velocity(0);
+    move_intake(0, 0, 0);
 }
 
 void checkOuttakeStall() {

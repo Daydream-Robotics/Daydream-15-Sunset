@@ -46,54 +46,110 @@ void autonomous() {
 	// controller.rumble("-");
 	// auton.turnTo(0);
 
+	double bottom_matchloader_x = 36.5;
+	double top_matchloader_x = 35.5;
+	int matchloader_ram_speed = 55;
+
 	// initilize and line up with bottom right matchloader
 	centerScore.set_value(true);
-	descorer.set_value(true);
+	unloader.set_value(true);
 	lowIntake.move_velocity(200);
-	auton.travelToPoint(34.33, 0, 200);
-	lowIntake.move_velocity(0);
+	// auton.travelToPoint(34.33, 0, 200);
+	auton.travelToPoint(bottom_matchloader_x, 0, 200);
+	pros::lcd::print(1, "[Status] Lined Up with bottom right matchloader");
 	centerScore.set_value(false);
+	lowIntake.move_velocity(0);
+	pros::delay(50);
 
 
 	// matchload from bottom right
+	pros::lcd::print(1, "[Status] Matchload Bottom Right");
 	move_intake(200, 200, -200);
-	auton.travelToPoint(34, 12, 200, false, 2);
-	leftMotors.move_velocity(50);
-	rightMotors.move_velocity(50);
-	pros::delay(3000);
+	auton.travelToPoint(bottom_matchloader_x, 18, matchloader_ram_speed, false, 1);
+	leftMotors.move_velocity(30);
+	rightMotors.move_velocity(30);
+	hump(auton);
+	// pros::delay(2000);
+
+	// back up from matchloader
+	leftMotors.move_velocity(-50);
+	rightMotors.move_velocity(-50);
+	pros::delay(200);
 
 	// score on bottom right of long goal
-	auton.travelToPoint(36, -18, 200, true, 4);  // lo 35
+	pros::lcd::print(1, "[Status] Score Bottom Right");
+	auton.travelToPoint(36, -20, 100, true, 2);  // lo 35
 	unloadLongGoal(auton);
+	unloader.set_value(false);
 	move_intake(0, 0, 0);
 
 	// line up with top right red balls
-	auton.travelToPoint(36, -10, 200);
-	auton.travelToPoint(22, -10, 200);
-	auton.travelToPoint(22, -80, 200);
+	pros::lcd::print(1, "[Status] Line Up Top Right Balls");
+	leftMotors.move_velocity(200);
+	rightMotors.move_velocity(200);
+	pros::delay(300);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
+	pros::delay(50);
+	auton.travelToPoint(20, -24);
+	auton.travelToPoint(20, -85, 200);  //-75
 
 	// retrieve top right red balls
-	auton.travelToPoint(40, -90, 200, false, 2);
-
+	pros::lcd::print(1, "[Status] Retrieve Top Right Balls");
+	move_intake(200, 200, -200);
+	auton.travelToPoint(51, -91, 200, false, 3); // 50  // lo 90 hi 90
+	
+	// get the balls
+	leftMotors.move_velocity(-30);
+	rightMotors.move_velocity(-30);
+	pros::delay(100);
+	leftMotors.move_velocity(30);
+	rightMotors.move_velocity(30);
+	pros::delay(100);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
+	
+	
 	// line up with top right matchloader
-	auton.travelToPoint(33, -90, 200, true);
+	pros::lcd::print(1, "[Status] Line Up Top Right Loader");
+	auton.travelToPoint(top_matchloader_x, -92, 100, true);
+	move_intake(0, 0, 0);
 
 	// matchload from top right
-	auton.travelToPoint(33, -100, 200, false, 2);
+	pros::lcd::print(1, "[Status] Matchload Top Right");
+	unloader.set_value(true);
+	move_intake(200, 200, -200);
+	auton.travelToPoint(top_matchloader_x, -110, matchloader_ram_speed, false, 2);
+	hump(auton);
+
+	// back up from matchloader
+	leftMotors.move_velocity(-50);
+	rightMotors.move_velocity(-50);
+	pros::delay(200);
 
 	// score on top right of long goal
-	auton.travelToPoint(36.33, -75, 200, true);
+	pros::lcd::print(1, "[Status] Score Top Right");
+	auton.travelToPoint(36.33, -69, 100, true, 2);
+	unloadLongGoal(auton);
 	move_intake(0, 0, 0);
 
 	// move to park
-	auton.travelToPoint(22, -90, 200);
-	auton.travelToPoint(22, 10, 200, true);
-
-	// park
-	auton.turnTo(170);
+	pros::lcd::print(1, "[Status] Move to Park");
 	leftMotors.move_velocity(200);
 	rightMotors.move_velocity(200);
-	pros::delay(1200);
+	pros::delay(300);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
+	auton.travelToPoint(20, -70);
+	unloader.set_value(false);
+	auton.travelToPoint(22, 10, 200, true, 3);
+
+	// park
+	pros::lcd::print(1, "[Status] Parking");
+	auton.turnTo(170);
+	leftMotors.move_velocity(250);
+	rightMotors.move_velocity(250);
+	pros::delay(1100);
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
 
@@ -114,7 +170,7 @@ void autonomous() {
 
 	// // line up for botton right unloader
 	// centerScore.set_value(true);
-	// descorer.set_value(true);
+	// unloader.set_value(true);
 	// lowIntake.move_velocity(200);
 	// auton.travel(33, 200, 0, -1); //33.5
 	// centerScore.set_value(false);
@@ -330,7 +386,7 @@ void opcontrol() {
 // 		/* - - - - - - - - - - - - - - [DESCORE TOGGLE] - - - - - - - - - - - - - - */
 
 // 		if (controller.get_digital_new_press(DIGITAL_X)) {
-// 			descorer.toggle();
+// 			unloader.toggle();
 // 		}
 
 // 		if (controller.get_digital_new_press(DIGITAL_A)) {
