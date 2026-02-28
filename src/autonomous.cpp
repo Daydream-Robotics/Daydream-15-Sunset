@@ -211,6 +211,7 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
     double prevDistance = 0.0;
 
 	using clock = std::chrono::steady_clock;
+    auto startTime = clock::now();
 	auto lastTime = clock::now();
 
     while (true) {
@@ -280,8 +281,10 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         leftMotors.move_velocity(left);
         rightMotors.move_velocity(right);
 
-		// Exit if any exit condition is met. 100 set to prevent velocity timeout for now
-		double currVel = (std::fabs(distance - traveled) < 1.0) ? (traveled - prevDistance) / dt : 999.0;
+		// Exit if any exit condition is met.
+		// Ignore velocity exit for the first second to allow robot to accelerate
+		auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
+		double currVel = (elapsed_ms > 1000) ? (traveled - prevDistance) / dt : 999.0;
 		PID::ExitState exitState = distancePID.exit_condition(currVel);
         if (exitState != PID::RUNNING){
 			// print exit condition

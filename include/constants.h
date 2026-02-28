@@ -46,7 +46,7 @@ constexpr double HEADING_KI_THRESHOLD = 2;
 
 constexpr double TURN_KP = 1.2; // 1.2
 constexpr double TURN_KI = 0.00000; // hi 0.0001
-constexpr double TURN_KD = 0.14; // 0.063875   0.067   // lo 0.13  hi 0.15
+constexpr double TURN_KD = 0.147; // 0.063875   0.067   // lo 0.14  hi 0.148
 constexpr double TURN_KI_THRESHOLD = 2;
 
 // constexpr double STRAIGHTENING_KP = 0.0;

@@ -39,18 +39,18 @@ void unloadLongGoal(Autonomous auton) {
 
 // the "hump" function
 void hump(Autonomous auton) {
-    move_intake(200, 200, -200);
-    for (int i = 0; i < 3; i++){
+    move_intake(200, 200, -100);
+    for (int i = 0; i < 2; i++){
         // auton.travel(24, 150, 90, 0.4);
         leftMotors.move_velocity(-30);
         rightMotors.move_velocity(-30);
-        pros::delay(300);  // lo 200
-        leftMotors.move_velocity(50);
-        rightMotors.move_velocity(50);
+        pros::delay(250);  // lo 200
+        leftMotors.move_velocity(33);
+        rightMotors.move_velocity(33);
         pros::delay(400);
-        leftMotors.move_velocity(0);
-        rightMotors.move_velocity(0);
-        pros::delay(600);
+        leftMotors.move_velocity(-5);
+        rightMotors.move_velocity(-5);
+        pros::delay(700);
 	}
     // pros::delay(200);
     leftMotors.move_velocity(0);

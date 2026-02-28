@@ -46,16 +46,21 @@ void autonomous() {
 	// controller.rumble("-");
 	// auton.turnTo(0);
 
-	double bottom_matchloader_x = 36.5;
-	double top_matchloader_x = 35.5;
-	int matchloader_ram_speed = 55;
+	double bottomMatchloaderX = 36.5;
+	double topMatchloaderX = 36.3;  // lo 36 best 36.5
+	int matchloaderRamSpeed = 55; 
+
+	double bottomLongGoalX = 37;  // lo 36.33
+	double topLongGoalX = 37;
+
+	
 
 	// initilize and line up with bottom right matchloader
 	centerScore.set_value(true);
 	unloader.set_value(true);
 	lowIntake.move_velocity(200);
 	// auton.travelToPoint(34.33, 0, 200);
-	auton.travelToPoint(bottom_matchloader_x, 0, 200);
+	auton.travelToPoint(bottomMatchloaderX, 0, 200);
 	pros::lcd::print(1, "[Status] Lined Up with bottom right matchloader");
 	centerScore.set_value(false);
 	lowIntake.move_velocity(0);
@@ -65,10 +70,12 @@ void autonomous() {
 	// matchload from bottom right
 	pros::lcd::print(1, "[Status] Matchload Bottom Right");
 	move_intake(200, 200, -200);
-	auton.travelToPoint(bottom_matchloader_x, 18, matchloader_ram_speed, false, 1);
-	leftMotors.move_velocity(30);
-	rightMotors.move_velocity(30);
+	auton.travelToPoint(bottomMatchloaderX, 18, matchloaderRamSpeed, false, 1);
+	// leftMotors.move_velocity(30);
+	// rightMotors.move_velocity(30);
+	pros::delay(1000);
 	hump(auton);
+	move_intake(100, 100, -100);
 	// pros::delay(2000);
 
 	// back up from matchloader
@@ -78,7 +85,7 @@ void autonomous() {
 
 	// score on bottom right of long goal
 	pros::lcd::print(1, "[Status] Score Bottom Right");
-	auton.travelToPoint(36, -20, 100, true, 2);  // lo 35
+	auton.travelToPoint(bottomLongGoalX, -20, 100, true, 2);  // lo 35
 	unloadLongGoal(auton);
 	unloader.set_value(false);
 	move_intake(0, 0, 0);
@@ -92,35 +99,39 @@ void autonomous() {
 	rightMotors.move_velocity(0);
 	pros::delay(50);
 	auton.travelToPoint(20, -24);
+	move_intake(200, 200, 300);
 	auton.travelToPoint(20, -85, 200);  //-75
+	pros::delay(500);
 
 	// retrieve top right red balls
 	pros::lcd::print(1, "[Status] Retrieve Top Right Balls");
-	move_intake(200, 200, -200);
-	auton.travelToPoint(51, -91, 200, false, 3); // 50  // lo 90 hi 90
+	move_intake(200, 200, -100);
+	auton.travelToPoint(52, -90, 200, false, 3); // 50  // lo 90 hi 91
 	
 	// get the balls
 	leftMotors.move_velocity(-30);
 	rightMotors.move_velocity(-30);
-	pros::delay(100);
+	pros::delay(200);
 	leftMotors.move_velocity(30);
 	rightMotors.move_velocity(30);
-	pros::delay(100);
+	pros::delay(200);
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
 	
 	
 	// line up with top right matchloader
 	pros::lcd::print(1, "[Status] Line Up Top Right Loader");
-	auton.travelToPoint(top_matchloader_x, -92, 100, true);
+	auton.travelToPoint(topMatchloaderX, -93, 100, true);
 	move_intake(0, 0, 0);
 
 	// matchload from top right
 	pros::lcd::print(1, "[Status] Matchload Top Right");
 	unloader.set_value(true);
 	move_intake(200, 200, -200);
-	auton.travelToPoint(top_matchloader_x, -110, matchloader_ram_speed, false, 2);
+	auton.travelToPoint(topMatchloaderX, -110, matchloaderRamSpeed, false, 2);
+	pros::delay(1000);
 	hump(auton);
+	move_intake(100, 100, -100);
 
 	// back up from matchloader
 	leftMotors.move_velocity(-50);
@@ -129,7 +140,7 @@ void autonomous() {
 
 	// score on top right of long goal
 	pros::lcd::print(1, "[Status] Score Top Right");
-	auton.travelToPoint(36.33, -69, 100, true, 2);
+	auton.travelToPoint(topLongGoalX, -69, 100, true, 2);
 	unloadLongGoal(auton);
 	move_intake(0, 0, 0);
 
@@ -140,9 +151,11 @@ void autonomous() {
 	pros::delay(300);
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
+	pros::delay(50);
 	auton.travelToPoint(20, -70);
 	unloader.set_value(false);
-	auton.travelToPoint(22, 10, 200, true, 3);
+	move_intake(100, 100, 100);
+	auton.travelToPoint(22, 10, 200, false, 3);
 
 	// park
 	pros::lcd::print(1, "[Status] Parking");
@@ -152,12 +165,12 @@ void autonomous() {
 	pros::delay(1100);
 	leftMotors.move_velocity(0);
 	rightMotors.move_velocity(0);
-
-
-
-
-
-
+	pros::delay(500);
+	leftMotors.move_velocity(-70);
+	rightMotors.move_velocity(-70);
+	pros::delay(700);
+	leftMotors.move_velocity(0);
+	rightMotors.move_velocity(0);
 
 
 
@@ -328,92 +341,7 @@ void autonomous() {
 void opcontrol() {
 	initialize();
 	pros::delay(500); // Allow system to settle
-
-
-	Autonomous auton = Autonomous();
-	// AutoTuner::run(auton);
-
-	// while(true) {
-	// 	auton.updatePose();
-	// 	pros::lcd::print(1, "X: %lf", auton.pos_x);
-	// 	pros::lcd::print(2, "Y: %lf", auton.pos_y);
-	// 	pros::lcd::print(3, "Heading: %lf", auton.heading);
-	// 	pros::delay(50);
-	// }
-
-	auton.travelToPoint(48, 0, 200);
-	controller.rumble("-");
-	auton.travelToPoint(48, -48, 200);
-	controller.rumble("-");
-	auton.travelToPoint(0, -48, 200);
-	controller.rumble("-");
-	auton.travelToPoint(0, 0, 200);
-	controller.rumble("-");
-	auton.turnTo(0);
-
-	// // Set chassis brake mode to coast
-	// leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-	// rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-
-	// // Set intake motors to brake
-	// lowIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	// midIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	// highIntake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-
-	
-
-// 	bool centerScoreToggle = false;
-
-// 	while(true) {
-
-// 		/* - - - - - - - - - - - - - - [CHASSIS CONTROLS] - - - - - - - - - - - - - - */
-
-// 		drive(DriveType::TANK);
-
-// 		/* - - - - - - - - - - - - - - [MATCH UNLOADER] - - - - - - - - - - - - - - */
-
-// 		if (controller.get_digital_new_press(DIGITAL_L1)) {
-// 			unloader.toggle();
-// 		}
-
-// 		/* - - - - - - - - - - - - - - [CENTER TOGGLE] - - - - - - - - - - - - - - */
-
-// 		if (controller.get_digital_new_press(DIGITAL_L2)) {
-// 			centerScore.toggle();
-// 			centerScoreToggle = !centerScoreToggle;
-// 		}
-
-// 		/* - - - - - - - - - - - - - - [DESCORE TOGGLE] - - - - - - - - - - - - - - */
-
-// 		if (controller.get_digital_new_press(DIGITAL_X)) {
-// 			unloader.toggle();
-// 		}
-
-// 		if (controller.get_digital_new_press(DIGITAL_A)) {
-// 			centerScore.set_value(true);
-// 		}
-
-// 		if (controller.get_digital_new_press(DIGITAL_B)) {
-// 			centerScore.set_value(false);
-// 		}
-
-// 		/* - - - - - - - - - - - - - - [INTAKE] - - - - - - - - - - - - - - */
-
-// 		if (centerScoreToggle) {
-// 			move_intake(HIGH_VOLTAGE, HIGH_VOLTAGE, HIGH_VOLTAGE); // scoring center high (L2)
-// 		} else if (controller.get_digital(DIGITAL_R1)) {
-// 			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, -HIGH_VOLTAGE); // intaking, top wheels reversed
-// 		} else if (controller.get_digital(DIGITAL_R2)) {
-// 			move_intake(MAX_VOLTAGE, MAX_VOLTAGE, MAX_VOLTAGE); // scoring long goals
-// 		} else if (controller.get_digital(DIGITAL_A)) {
-// 			move_intake(-HIGH_VOLTAGE, -HIGH_VOLTAGE, HIGH_VOLTAGE); // outtaking / scoring center low
-// 		} else {
-// 			move_intake(STOP);
-// 		}
-
-// 		// Delay added to prevent crashing
-// 		pros::delay(20);
-// 	}
+	autonomous();
 }
 
 void move_intake(int low, int mid, int high, double seconds) {
