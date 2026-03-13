@@ -233,13 +233,8 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
         // Compute traveled distance along heading vector
         Position delta { pos_x - start.x, pos_y - start.y };
 		printf("X: %.2f, Y: %.2f\n", pos_x, pos_y);
-        // double traveled = delta.y * headingUnit.x + delta.x * headingUnit.y;
+
 		traveled = delta.x * headingUnit.x + delta.y * headingUnit.y;
-
-		// pros::lcd::print(1, "Delta: x: %.2f, y: %.2f", delta.x, delta.y);
-		// pros::lcd::print(2, "Heading Unit: x: %.2f, y: %.2f", headingUnit.x, headingUnit.y);
-		// pros::lcd::print(3, "Traveled: %.2f", traveled);
-
 
         double v = distancePID.compute(traveled);
         v = clamp(v, -speed, speed);
@@ -303,132 +298,6 @@ double Autonomous::travel(double distance, double speed, double targetHeading, d
     pros::delay(10);
 	return traveled;
 }
-
-
-// // TODO: TEST
-// void Autonomous::moveToPoint(double targetX, double targetY, double maxSpeed, bool reverse, double timer_s) {
-//     updatePose();
-//     double dx = targetX - pos_x;
-//     double dy = targetY - pos_y;
-//     double targetHeading = std::atan2(dy, dx) * 180.0 / M_PI;
-    
-//     if (reverse) {
-//         targetHeading += 180;
-//         while (targetHeading > 180) targetHeading -= 360;
-//     }
-    
-//     // Initial turn to face the target
-//     turnTo(targetHeading);
-    
-//     // Setup PIDs
-//     distancePID.reset();
-//     distancePID.setTarget(0);
-//     // Use similar exit conditions to travel
-//     distancePID.exit_condition_set(
-// 		0.1, 50, 
-// 		0.5, 100, 
-// 		0.3, 200, 
-// 		timer_s*1000);
-    
-//     headingPID.reset();
-    
-//     double prevVelocity = 0;
-//     double prevDistance = 0;
-    
-//     using clock = std::chrono::steady_clock;
-//     auto lastTime = clock::now();
-    
-//     while (true) {
-//         auto now = clock::now();
-//         std::chrono::duration<double> dt_dur = now - lastTime;
-//         double dt = dt_dur.count();
-//         if (dt < 0.001) dt = 0.001; // Prevent division by zero
-//         lastTime = now;
-        
-//         updatePose();
-        
-//         dx = targetX - pos_x;
-//         dy = targetY - pos_y;
-//         double dist = std::hypot(dx, dy);
-        
-//         // Continuously update target heading to point to target
-//         targetHeading = std::atan2(dy, dx) * 180.0 / M_PI;
-//         if (reverse) {
-//             targetHeading += 180;
-//             while (targetHeading > 180) targetHeading -= 360;
-//         }
-        
-//         double rawHeading = getYaw();
-        
-//         // Distance PID input: negative distance if moving forward (to approach 0 from negative)
-//         double distInput = reverse ? dist : -dist;
-//         double v = distancePID.compute(distInput);
-        
-//         // Clamp and Slew
-//         if (v > maxSpeed) v = maxSpeed;
-//         if (v < -maxSpeed) v = -maxSpeed;
-
-//         double headingError = angleDiffDeg(targetHeading, rawHeading);
-//         double v_target = v * std::max(0.0, std::cos(convertDegToRad(headingError)));
-
-//         double currentAccelLimit = accelLimitRate;
-//         if (std::fabs(v_target) < std::fabs(prevVelocity)) {
-//             currentAccelLimit = 500.0; // Allow faster deceleration
-//         }
-//         double v_slewed = accelLimit(prevVelocity, v_target, dt, currentAccelLimit);
-//         prevVelocity = v_slewed;
-        
-//         // Heading PID
-//         headingPID.setTarget(targetHeading, false);
-//         // Note: We negate the result because of how travel() vs moveToPoint() calculates error
-//         double omega = -headingPID.compute(rawHeading, true) * (std::fabs(v) / maxSpeed);
-//         turnPID.setTarget(targetHeading, false);
-        
-//         if (std::fabs(headingError) > 90.0) {
-//             // Use turnPID for large errors (point turn) to ensure enough power
-//             omega = turnPID.compute(rawHeading, true);
-//         } else {
-//             // Note: We negate the result because of how travel() vs moveToPoint() calculates error
-//             omega = -headingPID.compute(rawHeading, true) * (std::fabs(v) / maxSpeed);
-//         }
-
-//         double left = v_slewed + omega;
-//         double right = v_slewed - omega;
-        
-//         // Scale to max speed
-//         double maxMag = std::max(std::fabs(left), std::fabs(right));
-//         if (maxMag > maxSpeed) {
-//             double scale = maxSpeed / maxMag;
-//             left *= scale;
-//             right *= scale;
-//         }
-        
-//         leftMotors.move_velocity(left);
-//         rightMotors.move_velocity(right);
-        
-//         // Debug print every 200ms
-//         static uint32_t lastDebug = 0;
-//         if (pros::millis() - lastDebug > 200) {
-//             printf("MTP: v=%.1f err=%.1f L=%.1f R=%.1f\n", v, headingError, left, right);
-//             lastDebug = pros::millis();
-//         }
-
-//         // Exit condition based on velocity of distance error
-//         double distVel = (std::fabs(dist) < 1.0) ? (distInput - prevDistance) / dt : 999.0;
-// 		PID::ExitState exitState = distancePID.exit_condition(distVel);
-//         if (exitState != PID::RUNNING) {
-// 			pros::lcd::print(1, "Exited MoveTo Point: %d", exitState);
-//             break;
-//         }
-
-//         prevDistance = distInput;
-//         pros::delay(10);
-//     }
-    
-//     leftMotors.move_velocity(0);
-//     rightMotors.move_velocity(0);
-// }
-
 
 void Autonomous::updatePose(void) {
 	// Calculate distance travelled by each tracking wheel
@@ -525,29 +394,6 @@ WheelLengths Autonomous::getOdomWheelTravel(void) {
 
 	return del;
 }
-
-
-// void Autonomous::travelToX(double x_targ, double speed, double target_heading, int timer) {
-//     // double distanc;
-
-//     updatePose();
-//     Position start(pos_x, pos_y);
-    
-//     double dx = x_targ - start.x;
-
-// 	if (target_heading == 180) {
-// 		dx *= -1;
-// 	}
-//     // double dy = y_targ - start.y;
-
-//     // distance = std::hypot(dx, dy); //euclidean distance from start to end point
-
-//     // target_heading = std::atan2(dy, dx) * 180.0  / M_PI; // degrees
-
-
-//     travel(dx, speed, target_heading, timer);
-//     return;
-// }
 
 bool Autonomous::travelToPoint(double targetX, double targetY, double maxSpeed, bool reverse, int timer) {
 	updatePose();
