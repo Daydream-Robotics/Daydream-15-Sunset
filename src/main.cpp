@@ -20,7 +20,7 @@ Autonomous auton = Autonomous();
 void initialize() {
 	// Initialize subsystems
 	pros::lcd::initialize();
-	pros::lcd::print(0, "Reg: Initialize");
+	// pros::lcd::print(0, "Reg: Initialize");
 	imu.reset();
 	while (imu.is_calibrating()) {
 		pros::delay(20);
@@ -50,11 +50,11 @@ void autonomous() {
     matchloader.set_value(false);
     
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: FIRST_MATCHLOAD");
+	// pros::lcd::print(0, "Path: FIRST_MATCHLOAD");
 	purePursuit.setPath(als_paths[PathName::FIRST_MATCHLOAD]);
 	while (not purePursuit.step()) {
 		if (pros::millis() - startTime > 3000) {
-			pros::lcd::print(1, "Timeout: FIRST_MATCHLOAD");
+			// pros::lcd::print(1, "Timeout: FIRST_MATCHLOAD");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -72,11 +72,11 @@ void autonomous() {
     ballBlocker.set_value(true);
     
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: FIRST_SCORE");
+	// pros::lcd::print(0, "Path: FIRST_SCORE");
 	purePursuit.setPath(als_paths[PathName::FIRST_SCORE]);
 	while (not purePursuit.step(-1, 0.6)) {
         if (pros::millis() - startTime > 2000) {
-            pros::lcd::print(1, "Timeout: FIRST_SCORE");
+            // pros::lcd::print(1, "Timeout: FIRST_SCORE");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -91,7 +91,7 @@ void autonomous() {
     // move to wall balls
     intake.move(MAX_VOLTAGE);
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: WALL_BALLS");
+	// pros::lcd::print(0, "Path: WALL_BALLS");
 	purePursuit.setPath(als_paths[PathName::WALL_BALLS]);
     startDist = purePursuit.m_distFromEnd;
 	while (not purePursuit.step()) {
@@ -101,7 +101,7 @@ void autonomous() {
         }
 
 		if (pros::millis() - startTime > 6000) {
-			pros::lcd::print(1, "Timeout: WALL_BALLS");
+			// pros::lcd::print(1, "Timeout: WALL_BALLS");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -118,11 +118,11 @@ void autonomous() {
 
     // prepare for score before matchload
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: PREPARE_FOR_2ND_MATCHLOADER");
+	// pros::lcd::print(0, "Path: PREPARE_FOR_2ND_MATCHLOADER");
 	purePursuit.setPath(als_paths[PathName::PREPARE_FOR_2ND_MATCHLOADER]);
 	while (not purePursuit.step(-1)) {
 		if (pros::millis() - startTime > 3000) {
-			pros::lcd::print(1, "Timeout: PREPARE_FOR_2ND_MATCHLOADER");
+			// pros::lcd::print(1, "Timeout: PREPARE_FOR_2ND_MATCHLOADER");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -142,11 +142,11 @@ void autonomous() {
     matchloader.set_value(false);
 
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: SECOND_MATCHLOAD");
+	// pros::lcd::print(0, "Path: SECOND_MATCHLOAD");
 	purePursuit.setPath(als_paths[PathName::SECOND_MATCHLOAD]);
 	while (not purePursuit.step()) {
 		if (pros::millis() - startTime > 3000) {
-			pros::lcd::print(1, "Timeout: SECOND_MATCHLOAD");
+			// pros::lcd::print(1, "Timeout: SECOND_MATCHLOAD");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -163,11 +163,11 @@ void autonomous() {
     
     // move to score
 	startTime = pros::millis();
-	pros::lcd::print(0, "Path: SECOND_SCORE");
+	// pros::lcd::print(0, "Path: SECOND_SCORE");
 	purePursuit.setPath(als_paths[PathName::SECOND_SCORE]);
 	while (not purePursuit.step(-1)) {
         if (pros::millis() - startTime > 3000) {
-            pros::lcd::print(1, "Timeout: SECOND_SCORE");
+            // pros::lcd::print(1, "Timeout: SECOND_SCORE");
 			leftMotors.move_velocity(0);
 			rightMotors.move_velocity(0);
 			break;
@@ -184,7 +184,7 @@ void autonomous() {
     ballBlocker.set_value(false);
     intake.move(STOP);
 
-	pros::lcd::print(0, "Path: PARK");
+	// pros::lcd::print(0, "Path: PARK");
 	purePursuit.setPath(als_paths[PathName::PARK]);
 	while (not purePursuit.step()) {
 		pros::delay(10);
@@ -207,7 +207,6 @@ void opcontrol() {
 
 	lever.move(-HIGH_VOLTAGE);
 	pros::delay(100);
-    lever.move(STOP);
 	lever.set_zero_position(lever.get_position());
 
 	// bool raised = false;
