@@ -18,7 +18,7 @@ public:
 
     void log(const char* message) {
         if (!m_file) return; // silently proceed
-        fprintf(m_file, "[%lu ms] %s\n", pros::millis(), message);
+        // fprintf(m_files, "[%lu ms] %s\n", pros::millis(), message);
         fflush(m_file);
     }
 
