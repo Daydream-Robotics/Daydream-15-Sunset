@@ -35,7 +35,7 @@ void initialize() {
 
 	als_paths = buildAllPaths(0.25);
 
-	matchloader.set_value(true);
+	matchloader.set_value(false); //r
 }
 
 void disabled() {}
@@ -49,7 +49,7 @@ void autonomous() {
 	descorer.set_value(true);
 
     intake.move(MAX_VOLTAGE);
-    matchloader.set_value(false);
+    matchloader.set_value(true); //r
     
 	startTime = pros::millis();
 	pros::lcd::print(0, "Path: FIRST_MATCHLOAD");
@@ -85,7 +85,7 @@ void autonomous() {
 		}
 		pros::delay(10);
 	}
-    matchloader.set_value(true);
+    matchloader.set_value(false); //r
         
     // score
     score();
@@ -196,9 +196,9 @@ void opcontrol() {
 
 		// Matchloader
 		if (controller.get_digital(DIGITAL_Y)) {
-			matchloader.set_value(false);
+			matchloader.set_value(true); //r
 		} else {
-			matchloader.set_value(true);
+			matchloader.set_value(false); //r
 		}
         
         // Raise Lifter

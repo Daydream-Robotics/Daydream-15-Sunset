@@ -353,7 +353,7 @@ void matchload(bool isFar)
     if(!isFar)gamePiece = GamePiece::RED_BALL;
     else gamePiece = GamePiece::BLUE_BALL;
 
-    matchloader.set_value(true);
+    matchloader.set_value(false); //r
 
     move_intake(STOP, HIGH_VOLTAGE, HIGH_VOLTAGE);
     // pros::lcd::print(1,"moving intake");
