@@ -101,7 +101,7 @@ void autonomous() {
 			break;
 		}
 
-		if (odom.getPosY() < -30) {
+		if (odom.getPosY() < -31) {
 			descorer.set_value(false);
 		}
 
@@ -384,21 +384,24 @@ void score() {
 }
 
 
-void matchload() {
+void matchload(int numRam) {
     intake.move(MAX_VOLTAGE);
     pros::delay(300);
-    leftMotors.move_velocity(-70);
-    rightMotors.move_velocity(-70);
-    pros::delay(250);
-	leftMotors.move_velocity(0);
-	rightMotors.move_velocity(0);
-	pros::delay(250);
-    leftMotors.move_velocity(70);
-    rightMotors.move_velocity(70);
-    pros::delay(250);
-    leftMotors.move_velocity(0);
-    rightMotors.move_velocity(0);
-	pros::delay(400);
+
+	for (int i = 0; i < numRam; i++) {
+		leftMotors.move_velocity(-70);
+		rightMotors.move_velocity(-70);
+		pros::delay(400);
+		leftMotors.move_velocity(0);
+		rightMotors.move_velocity(0);
+		pros::delay(300);
+		leftMotors.move_velocity(70);
+		rightMotors.move_velocity(70);
+		pros::delay(400);
+		leftMotors.move_velocity(0);
+		rightMotors.move_velocity(0);
+		pros::delay(500);
+	}
     intake.move(STOP);
 }
 
